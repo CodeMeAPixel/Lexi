@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   openGraph: {
     siteName: "Lexi",
     description: "Your AI-powered writing assistant for rephrasing and enhancing text with ease.",
-    images: ["/images/og.png"],
+    images: ["/og.png"],
     creators: ["@HeyLexicon", "@CodeMeAPixel"],
     locale: "en-US",
     url: "https://beta.lexiapp.space"
@@ -32,7 +32,7 @@ export const metadata: Metadata = {
   twitter: {
     title: "Lexi",
     description: "Your AI-powered writing assistant for rephrasing and enhancing text with ease.",
-    images: "/images/og.png",
+    images: "/og.png",
     creator: "@CodeMeAPixel",
     card: "summary_large_image",
     site: "https://beta.lexiapp.space"
