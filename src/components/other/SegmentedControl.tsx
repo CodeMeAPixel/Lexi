@@ -14,7 +14,7 @@ type Props = {
   segments: Segment[];
   callback: (value: string, index: number) => void;
   defaultIndex?: number;
-  controlRef?: RefObject<HTMLDivElement>;
+  controlRef?: RefObject<HTMLDivElement | null>;
 };
 
 export default function SegmentedControl({

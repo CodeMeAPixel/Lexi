@@ -32,7 +32,7 @@ export default function HomePage() {
                 <HiMiniSparkles size={18} />
                 <span>Try the Rephraser</span>
               </Link>
-              <Link href="/skills" className="btn-secondary" aria-disabled="true" disabled>Skills (coming soon)</Link>
+              <Link href="/skills" className="btn-secondary" aria-disabled="true">Skills (coming soon)</Link>
             </div>
           </div>
 

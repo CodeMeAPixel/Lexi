@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${poppins.variable} antialiased`}
+        className={`${poppins.className} antialiased`}
       >
         <div className="App">
           <Navbar />
@@ -38,7 +38,7 @@ export default function RootLayout({
               },
             }}
           />
-          <main className="flex items-center justify-center w-full mt-14">
+          <main className="flex items-center justify-center w-full mt-20">
             {children}
           </main>
           <Footer />

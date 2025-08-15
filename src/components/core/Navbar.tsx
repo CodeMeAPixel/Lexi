@@ -13,7 +13,7 @@ function Navbar() {
           <span className="brand">Lexi</span>
         </Link>
       </div>
-      <a target={"_blank"} rel="noreferrer" href="https://github.com/CodeMeAPixel/LexiAI" aria-label="Github">
+      <a target={"_blank"} rel="noreferrer" href="https://github.com/CodeMeAPixel/Lexi" aria-label="Github">
         <FaGithub size={24} color="#fff" />
         <span className="sm:hidden">Star on GitHub</span>
       </a>

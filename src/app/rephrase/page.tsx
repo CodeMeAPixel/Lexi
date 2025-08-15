@@ -3,8 +3,10 @@
 import { FiEdit } from "react-icons/fi";
 import SegmentedControl from "@/components/other/SegmentedControl";
 import { useState, useRef, useCallback } from "react";
-import { HiMiniSparkles } from "react-icons/hi2";
+import RephraseSettings from "@/components/other/RephraseSettings";
+import { HiCog8Tooth, HiMiniSparkles } from "react-icons/hi2";
 import toast from "react-hot-toast";
+import { useRouter } from "next/navigation";
 
 type LengthType = "short" | "medium" | "long" | "original";
 type ToneType = "Casual" | "Formal" | "Informal" | "Creative";
@@ -12,29 +14,26 @@ type ToneType = "Casual" | "Formal" | "Informal" | "Creative";
 export default function Rephraser() {
   const [length, setLength] = useState<LengthType>("short");
   const [type, setType] = useState<ToneType>("Casual");
-  const [sentence, setSentence] = useState("");
-  const [input, setInput] = useState("hello");
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [preserveEntities, setPreserveEntities] = useState(true);
+  const [preservePunctuation, setPreservePunctuation] = useState(true);
+  const [extraInstructions, setExtraInstructions] = useState("");
+  const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
 
   const toneControlRef = useRef<HTMLDivElement>(null);
   const lengthControlRef = useRef<HTMLDivElement>(null);
 
-  const copy = useCallback(async () => {
-    await navigator.clipboard.writeText(sentence);
-    toast("Copied to clipboard", {
-      icon: "👏",
-    });
-  }, [sentence]);
+  // copy handled on dedicated result page
 
   const buildPrompt = useCallback(() => {
     const parts: string[] = [];
     parts.push(`Rephrase the sentence: "${input}"`);
     parts.push(
-      "Preserve the original meaning, named entities (names, dates, numbers), and punctuation."
+      `Preserve the original meaning${preserveEntities ? ", named entities (names, dates, numbers)" : ""}${preservePunctuation ? ", and punctuation" : ""}.`
     );
-    parts.push(
-      type === "Casual" ? "Use a casual tone." : "Use a formal tone."
-    );
+    parts.push(type === "Casual" ? "Use a casual tone." : `Use a ${type.toLowerCase()} tone.`);
 
     if (length === "short") {
       parts.push("Make it shorter while keeping the same meaning.");
@@ -42,6 +41,10 @@ export default function Rephraser() {
       parts.push("Make it moderately shorter or clearer as appropriate.");
     } else if (length === "long") {
       parts.push("Expand slightly for clarity while preserving the meaning.");
+    }
+
+    if (extraInstructions?.trim()) {
+      parts.push(extraInstructions.trim());
     }
 
     parts.push(
@@ -55,7 +58,6 @@ export default function Rephraser() {
       e?.preventDefault();
       if (!input.trim()) return;
 
-      setSentence("");
       setIsLoading(true);
 
       try {
@@ -74,14 +76,21 @@ export default function Rephraser() {
         const decoder = new TextDecoder();
 
         let done = false;
+        let finalText = "";
         while (!done) {
           const { value, done: doneReading } = await reader.read();
           done = doneReading;
           if (value) {
-            const chunkValue = decoder.decode(value);
-            setSentence((prev) => prev + chunkValue);
+            finalText += decoder.decode(value);
           }
         }
+
+        const params = new URLSearchParams();
+        params.set("text", finalText);
+        params.set("tone", type);
+        params.set("length", length);
+
+        router.push(`/rephrase/result?${params.toString()}`);
       } catch (err) {
         console.error(err);
         toast.error("Something went wrong");
@@ -93,49 +102,40 @@ export default function Rephraser() {
   );
 
   return (
-    <main className="flex flex-col items-center gap-6 mb-10 panel-wide">
-      <h1 className="flex flex-col gap-3 text-5xl font-bold text-center leading-11 sm:text-4xl">
-        Write better, faster with Lexi!
-      </h1>
-      <p className="-mt-2 text-center text-grey-50 sm:text-sm max-w-4/6">
-        Rephrase sentences with the tone you want. Crisp results, streaming in
-        real time.
-      </p>
-
+    <main className="panel-wide">
       <form
         onSubmit={submit}
         className="flex flex-col w-full gap-3 p-6 mt-2 glass-panel"
       >
-        <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
-          <div style={{ flex: 1 }}>
-            <label className="block mb-2 text-xs text-white/70">Tone</label>
-            <SegmentedControl
-              name="tone"
-              callback={(val: ToneType) => setType(val)}
-              controlRef={toneControlRef}
-              defaultIndex={0}
-              segments={[
-                { label: "Casual", value: "Casual", ref: useRef() },
-                { label: "Formal", value: "Formal", ref: useRef() },
-                { label: "Creative", value: "Creative", ref: useRef() },
-              ]}
-            />
-          </div>
+        <div className="relative flex flex-col items-center justify-center">
+          <h1 className="text-5xl font-bold text-center leading-11 sm:text-4xl">
+            Write better, faster with Lexi!
+          </h1>
+          <p className="mt-2 text-center text-grey-50 sm:text-sm max-w-4/6">
+            Rephrase sentences with the tone you want. Crisp results, streaming in
+            real time.
+          </p>
 
-          <div style={{ width: 260 }}>
-            <label className="block mb-2 text-xs text-white/70">Length</label>
-            <SegmentedControl
-              name="length"
-              callback={(val: LengthType) => setLength(val)}
-              controlRef={lengthControlRef}
-              defaultIndex={0}
-              segments={[
-                { label: "Short", value: "short", ref: useRef() },
-                { label: "Medium", value: "medium", ref: useRef() },
-                { label: "Long", value: "long", ref: useRef() },
-                { label: "Original", value: "original", ref: useRef() },
-              ]}
-            />
+          {/* Compact settings button in header (top-right) for sm+; hidden on mobile to prevent overlap */}
+          <button
+            onClick={() => setSettingsOpen(true)}
+            aria-label="Open settings"
+            className="absolute items-center justify-center p-2 transition-colors rounded-md md:inline-flex top-3 right-3 hover:bg-white/5 sm:hidden"
+            title="Settings"
+            type="button"
+          >
+            <HiCog8Tooth size={18} />
+          </button>
+
+          {/* Mobile-friendly settings button to avoid overlapping the header text */}
+          <div className="justify-center hidden w-full mt-3 md:flex">
+            <button
+              onClick={() => setSettingsOpen(true)}
+              className="inline-flex items-center gap-2 px-3 py-2 text-sm transition-colors rounded-md bg-white/5 hover:bg-white/8"
+              type="button"
+            >
+              <HiCog8Tooth size={16} /> Settings
+            </button>
           </div>
         </div>
 
@@ -155,6 +155,7 @@ export default function Rephraser() {
           placeholder="Type or paste a sentence… Press Ctrl/⌘ + Enter to rewrite."
         />
 
+        {/* Previously the full-width Settings button lived here; moved to header for a cleaner layout */}
         <button
           type="submit"
           className="flex flex-row items-center justify-center gap-2 sm:text-sm disabled:cursor-not-allowed"
@@ -176,33 +177,22 @@ export default function Rephraser() {
         </button>
       </form>
 
-      {sentence && (
-        <div className="result-card">
-          <div className="result-header">
-            <span>Result</span>
-            <div className="result-meta">
-              <span className="badge">{type}</span>
-              <span className="badge">
-                {length === "short"
-                  ? "Shorter"
-                  : length === "medium"
-                    ? "Medium"
-                    : length === "long"
-                      ? "Longer"
-                      : "Original"}
-              </span>
-              <button
-                onClick={copy}
-                className="copy-btn"
-                title="Copy to clipboard"
-              >
-                Copy
-              </button>
-            </div>
-          </div>
-          <div className="result-body">{sentence}</div>
-        </div>
-      )}
+      <RephraseSettings
+        open={settingsOpen}
+        tone={type}
+        length={length}
+        preserveEntities={preserveEntities}
+        preservePunctuation={preservePunctuation}
+        extra={extraInstructions}
+        onClose={() => setSettingsOpen(false)}
+        onSave={(v) => {
+          setType(v.tone as ToneType);
+          setLength(v.length as LengthType);
+          setPreserveEntities(v.preserveEntities);
+          setPreservePunctuation(v.preservePunctuation);
+          setExtraInstructions(v.extra || "");
+        }}
+      />
     </main>
   );
 }
