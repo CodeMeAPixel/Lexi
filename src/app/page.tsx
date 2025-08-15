@@ -19,12 +19,12 @@ export default function HomePage() {
           <div className="hero-copy">
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
               <Image src="/logo.png" alt="Lexicon logo" width={56} height={56} />
-              <h1 style={{ margin: 0, fontSize: 48, lineHeight: 1.02 }}>Lexicon</h1>
+              <h1 style={{ margin: 0, fontSize: 48, lineHeight: 1.02 }}>Lexi</h1>
             </div>
             <p className="hero-sub" style={{ marginTop: 8 }}>Your personal English coach.</p>
 
             <p className="hero-lead" style={{ marginTop: 18 }}>
-              Rephrase sentences, practice English, and sharpen your writing with AI-powered suggestions tailored to tone and length. Learning tools and tests are coming soon.
+              Practice English, and sharpen your writing with AI powered suggestions.
             </p>
 
             <div style={{ display: "flex", gap: 12, marginTop: 18 }}>
@@ -32,7 +32,7 @@ export default function HomePage() {
                 <HiMiniSparkles size={18} />
                 <span>Try the Rephraser</span>
               </Link>
-              <Link href="/skills" className="btn-secondary" aria-disabled="true">Skills (coming soon)</Link>
+              <Link href="/about" className="btn-secondary" aria-disabled="true">Learn More</Link>
             </div>
           </div>
 

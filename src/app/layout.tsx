@@ -13,9 +13,56 @@ const poppins = Poppins({
 })
 
 export const metadata: Metadata = {
-  title: "Lexi",
-  description: "Rephrase sentences with the tone you want. Crisp results, streaming in real time.",
-};
+  title: {
+    default: "Lexi - AI Writing Assistant",
+    template: "%s - Lexi"
+  },
+  metadataBase: new URL("https://beta.lexiapp.space"),
+  keywords: ["AI", "Writing Assistant", "Rephrase", "Text Enhancement"],
+  description: "Your AI-powered writing assistant for rephrasing and enhancing text with ease.",
+  applicationName: "Lexi",
+  openGraph: {
+    siteName: "Lexi",
+    description: "Your AI-powered writing assistant for rephrasing and enhancing text with ease.",
+    images: ["/images/og.png"],
+    creators: ["@HeyLexicon", "@CodeMeAPixel"],
+    locale: "en-US",
+    url: "https://beta.lexiapp.space"
+  },
+  twitter: {
+    title: "Lexi",
+    description: "Your AI-powered writing assistant for rephrasing and enhancing text with ease.",
+    images: "/images/og.png",
+    creator: "@CodeMeAPixel",
+    card: "summary_large_image",
+    site: "https://beta.lexiapp.space"
+  },
+  appleWebApp: {
+    statusBarStyle: "black-translucent",
+    title: "Lexi",
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  icons: {
+    icon: "/favicon.ico",
+    shortcut: "/image.png",
+    apple: "/image.png"
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-snippet": -1,
+      "max-video-preview": -1
+    }
+  },
+  other: {
+    "mobile-web-app-capable": "yes"
+  },
+}
 
 export default function RootLayout({
   children,
