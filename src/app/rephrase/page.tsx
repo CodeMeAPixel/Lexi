@@ -109,7 +109,7 @@ export default function Rephraser() {
       >
         <div className="relative flex flex-col items-center justify-center">
           <h1 className="text-5xl font-bold text-center leading-11 sm:text-4xl">
-            Write better, faster with Lexi!
+            Sentence Rephraser!
           </h1>
           <p className="mt-2 text-center text-grey-50 sm:text-sm max-w-4/6">
             Rephrase sentences with the tone you want. Crisp results, streaming in
