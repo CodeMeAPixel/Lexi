@@ -28,7 +28,7 @@ export default function SignInPage() {
                 router.push("/");
             } else {
                 // next-auth returns an error string in res.error when redirect=false
-                toast.error((res as any)?.error || "Sign in failed");
+                toast.error(res?.error || "Sign in failed");
             }
         } catch (err) {
             console.error(err);

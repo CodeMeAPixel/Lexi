@@ -1,4 +1,4 @@
-import React, { ComponentType } from 'react';
+import React, { ComponentType } from "react";
 
 /**
  * Props for each email template type
@@ -16,6 +16,12 @@ export type EmailTemplateProps = {
         name?: string;
         email: string;
     };
+    waitlistConfirmation: {
+        email: string;
+    };
+    waitlistUnsubscribe: {
+        email: string;
+    };
 };
 
 interface LoginFailedEmailProps {
@@ -29,16 +35,20 @@ interface LoginFailedEmailProps {
  * A mapping of template names to their corresponding React components
  * Each component is typed to accept the props defined in EmailTemplateProps
  */
-import VerificationEmail from '@/lib/email/templates/accounts/verification';
-import ResetPasswordEmail from '@/lib/email/templates/accounts/reset-password';
-import WelcomeEmail from '@/lib/email/templates/accounts/welcome';
+import VerificationEmail from "@/lib/email/templates/accounts/verification";
+import ResetPasswordEmail from "@/lib/email/templates/accounts/reset-password";
+import WelcomeEmail from "@/lib/email/templates/accounts/welcome";
+import WaitlistConfirmationEmail from "@/lib/email/templates/waitlist/confirmation";
+import WaitlistUnsubscribeEmail from "@/lib/email/templates/waitlist/unsubscribe";
 
 const templateComponents: {
-    [K in keyof EmailTemplateProps]: ComponentType<EmailTemplateProps[K]>
+    [K in keyof EmailTemplateProps]: ComponentType<EmailTemplateProps[K]>;
 } = {
     verification: VerificationEmail,
     resetPassword: ResetPasswordEmail,
     welcome: WelcomeEmail,
+    waitlistConfirmation: WaitlistConfirmationEmail,
+    waitlistUnsubscribe: WaitlistUnsubscribeEmail,
 };
 
 /**
@@ -49,7 +59,7 @@ export type TemplateName = keyof typeof templateComponents;
 
 /**
  * Creates a React element for an email template
- * 
+ *
  * @template T - The email template name (must be a valid TemplateName)
  * @param {T} templateName - The name of the email template to create
  * @param {EmailTemplateProps[T]} props - The props to pass to the email template component
