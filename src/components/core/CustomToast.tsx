@@ -3,12 +3,7 @@
 import React from "react";
 import type { Toast } from "react-hot-toast";
 import { toast as hotToast } from "react-hot-toast";
-import {
-    HiCheckCircle,
-    HiXCircle,
-    HiInformationCircle,
-    HiXMark,
-} from "react-icons/hi2";
+import { HiCheckCircle, HiXCircle, HiInformationCircle } from "react-icons/hi2";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface ToastMessage {

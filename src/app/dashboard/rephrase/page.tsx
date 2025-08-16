@@ -1,8 +1,6 @@
 "use client";
 
-import { FiEdit } from "react-icons/fi";
-import SegmentedControl from "@/components/other/SegmentedControl";
-import { useState, useRef, useCallback } from "react";
+import { useState, useCallback } from "react";
 import RephraseSettings from "@/components/other/RephraseSettings";
 import { HiCog8Tooth, HiMiniSparkles } from "react-icons/hi2";
 import toast from "react-hot-toast";
@@ -21,9 +19,6 @@ export default function Rephraser() {
     const [input, setInput] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
-
-    const toneControlRef = useRef<HTMLDivElement>(null);
-    const lengthControlRef = useRef<HTMLDivElement>(null);
 
     // copy handled on dedicated result page
 
