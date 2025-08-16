@@ -28,9 +28,9 @@ export default function HomePage() {
             </p>
 
             <div style={{ display: "flex", gap: 12, marginTop: 18 }}>
-              <Link href="/rephrase" className="btn-primary">
+              <Link href="/auth" className="btn-primary">
                 <HiMiniSparkles size={18} />
-                <span>Try the Rephraser</span>
+                <span>Get Started</span>
               </Link>
               <Link href="/about" className="btn-secondary" aria-disabled="true">Learn More</Link>
             </div>
@@ -38,7 +38,7 @@ export default function HomePage() {
 
           <div className="hero-visual">
             <div className="mockup-box">
-              <img src="/demos/rephraser.png" alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover", borderRadius: 12 }} />
+              <RephraseMock />
             </div>
           </div>
         </div>

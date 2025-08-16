@@ -54,22 +54,22 @@ export default function RephraseMock() {
   }, []);
 
   return (
-    <div className="mockup-box p-4 bg-white/6 backdrop-blur-sm border border-white/6 h-80 w-full flex flex-col">
+    <div className="flex flex-col w-full p-4 border mockup-box bg-white/6 backdrop-blur-sm border-white/6 h-80">
       <div className="flex items-start gap-3 mb-3">
-        <div className="w-2 h-2 rounded-full bg-green-400" />
-        <div className="w-2 h-2 rounded-full bg-yellow-400" />
-        <div className="w-2 h-2 rounded-full bg-red-400" />
+        <div className="w-2 h-2 bg-green-400 rounded-full" />
+        <div className="w-2 h-2 bg-yellow-400 rounded-full" />
+        <div className="w-2 h-2 bg-red-400 rounded-full" />
       </div>
 
-      <div className="flex-1 flex flex-col justify-start gap-3 overflow-hidden">
+      <div className="flex flex-col justify-start flex-1 gap-3 overflow-hidden">
         <div className="text-xs text-white/60">Original</div>
-        <div className="rounded-md bg-white/4 p-3 text-sm text-white/90" style={{ minHeight: 48 }}>
+        <div className="p-3 text-sm rounded-md bg-white/4 text-white/90" style={{ minHeight: 48 }}>
           {original}
         </div>
 
         <div className="mt-2 text-xs text-white/60">Rephrase ({phase + 1}/{rephrases.length})</div>
         <div
-          className="rounded-md bg-black/60 p-3 text-sm text-white font-medium leading-6 h-28 overflow-auto"
+          className="p-3 overflow-auto text-sm font-medium leading-6 text-white rounded-md bg-black/60 h-28"
           aria-live="polite"
         >
           <span>{out}</span>

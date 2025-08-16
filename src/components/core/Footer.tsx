@@ -1,9 +1,15 @@
-import React from "react";
+"use client"
 
+import React from "react";
+import { usePathname } from "next/navigation";
 import { FaGithub } from "react-icons/fa";
 import { FaTwitter } from "react-icons/fa";
 
-function Footer() {
+const Footer = () => {
+  const pathname = usePathname();
+  const isDashboard = pathname.startsWith("/dashboard");
+  if (isDashboard) return null;
+
   return (
     <div className="footer">
       <p>
@@ -23,6 +29,6 @@ function Footer() {
       </div>
     </div>
   );
-}
+};
 
 export default Footer;

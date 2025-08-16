@@ -1,15 +1,24 @@
+import { z } from "zod";
 import { streamText } from "ai";
 import { openai } from "@ai-sdk/openai";
 
 export const runtime = "edge";
 
+const RephraseSchema = z.object({
+  prompt: z.string().min(1, "prompt is required"),
+});
+
 export async function POST(req: Request) {
   try {
-    const { prompt } = (await req.json()) as { prompt?: string };
+    const body = await req.json();
+    const parsed = RephraseSchema.safeParse(body);
 
-    if (!prompt) {
-      return new Response("No prompt in the request", { status: 400 });
+    if (!parsed.success) {
+      const first = parsed.error.errors[0];
+      return new Response(JSON.stringify({ error: first.message }), { status: 400, headers: { "Content-Type": "application/json" } });
     }
+
+    const { prompt } = parsed.data;
 
     const { textStream } = await streamText({
       model: openai("gpt-3.5-turbo"),
@@ -26,6 +35,6 @@ export async function POST(req: Request) {
     return new Response(textStream);
   } catch (error) {
     console.error(error);
-    return new Response("Internal Server Error", { status: 500 });
+    return new Response(JSON.stringify({ error: "Internal Server Error" }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
 }

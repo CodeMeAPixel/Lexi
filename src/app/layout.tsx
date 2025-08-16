@@ -1,9 +1,8 @@
 import "../styles/globals.css";
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
-import Navbar from "@/components/core/Navbar";
-import Footer from "@/components/core/Footer";
-import { Toaster } from "react-hot-toast";
+import ToasterClient from "@/components/core/ToasterClient";
+import SessionProviderClient from "@/components/core/SessionProviderClient";
 
 const poppins = Poppins({
   weight: ["400", "700"],
@@ -75,20 +74,12 @@ export default function RootLayout({
         className={`${poppins.className} antialiased`}
       >
         <div className="App">
-          <Navbar />
-          <Toaster
-            toastOptions={{
-              style: {
-                padding: "12px 24px",
-                color: "#0D0D0D",
-                background: "#fff",
-              },
-            }}
-          />
-          <main className="flex items-center justify-center w-full mt-20">
-            {children}
-          </main>
-          <Footer />
+          <SessionProviderClient>
+            <ToasterClient />
+            <main>
+              {children}
+            </main>
+          </SessionProviderClient>
         </div>
       </body>
     </html>
