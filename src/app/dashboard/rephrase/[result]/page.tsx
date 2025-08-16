@@ -20,9 +20,9 @@ export default function RephraseResultPage() {
     }, [text]);
 
     return (
-        <main className="flex flex-col items-center gap-6 mb-10 panel-wide">
-            <div className="w-full max-w-3xl p-6 glass-panel">
-                <div className="flex items-center justify-between mb-4">
+        <main className="w-full flex justify-center items-start">
+            <div className="w-full p-6 glass-panel">
+                <div className="flex items-center justify-between mb-6">
                     <div className="flex items-center gap-3">
                         <button
                             className="p-2 text-lg rounded-md btn-ghost hover:bg-white/10"
@@ -31,7 +31,9 @@ export default function RephraseResultPage() {
                         >
                             <FiArrowLeft />
                         </button>
-                        <h2 className="text-lg font-semibold">Rephrase result</h2>
+                        <h2 className="text-xl lg:text-2xl font-semibold">
+                            Rephrase result
+                        </h2>
                     </div>
 
                     <div className="flex items-center gap-2">
@@ -47,12 +49,13 @@ export default function RephraseResultPage() {
                     </div>
                 </div>
 
-                <div className="rounded-md bg-white/4 p-4 text-sm text-white/90 whitespace-pre-wrap min-h-[120px]">
+                <div className="rounded-md bg-white/4 p-6 text-base lg:text-lg text-white/90 whitespace-pre-wrap min-h-[200px] leading-relaxed">
                     {text || "No result available."}
                 </div>
 
-                <div className="mt-4 text-xs text-white/60">
-                    You can share this URL to let others view the same result, or copy it to clipboard.
+                <div className="mt-6 text-sm text-white/60">
+                    You can share this URL to let others view the same result,
+                    or copy it to clipboard.
                 </div>
             </div>
         </main>
