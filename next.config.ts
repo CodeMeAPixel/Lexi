@@ -2,13 +2,17 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   reactStrictMode: false,
-  typescript: { ignoreBuildErrors: true },
-  eslint: { ignoreDuringBuilds: true },
-  turbopack: {
-    resolveAlias: {
-      underscore: 'lodash'
-    },
-    resolveExtensions: ['.mdx', '.tsx', '.ts', '.jsx', '.js', '.json']
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "bucketapi.lexi.help",
+      },
+      {
+        protocol: "https",
+        hostname: "bucket.lexi.help",
+      },
+    ],
   },
 };
 

@@ -1,0 +1,261 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id             String         @id @default(cuid())
+    name           String?
+    username       String?        @unique
+    email          String?        @unique
+    emailVerified  DateTime?
+    role           UserRole       @default(USER)
+    image          String?
+    bio            String?
+    hashedPassword String?
+    createdAt      DateTime       @default(now())
+    accounts       Account[]
+    sessions       Session[]
+    activities     UserActivity[]
+    rephrasers     Rephraser[]
+    definers       Definer[]
+    quizAttempts   QuizAttempt[]
+    testsCreated   Test[]
+    quizzesCreated Quiz[]
+    Spellcheck     Spellcheck[]
+}
+
+model Account {
+    id                String  @id @default(cuid())
+    userId            String
+    type              String
+    provider          String
+    providerAccountId String
+    refresh_token     String? @map("refresh_token")
+    access_token      String? @map("access_token")
+    expires_at        Int?
+    token_type        String?
+    scope             String?
+    id_token          String?
+    session_state     String?
+    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+    @@unique([provider, providerAccountId])
+}
+
+model Session {
+    id           String   @id @default(cuid())
+    sessionToken String   @unique
+    userId       String
+    expires      DateTime
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+    identifier String
+    token      String   @unique
+    expires    DateTime
+
+    @@unique([identifier, token])
+}
+
+// Generic user activity log used by rephraser, quizzes, tests, etc.
+model UserActivity {
+    id        String         @id @default(cuid())
+    userId    String
+    tool      ActivityTool
+    action    ActivityAction
+    summary   String?
+    payload   Json?
+    relatedId String? // optional: reference to another model id (e.g., quizAttempt id)
+    createdAt DateTime       @default(now())
+
+    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Store rephraser results that can be shared publicly via slug or share id
+model Rephraser {
+    id                   String    @id @default(cuid())
+    userId               String?
+    originalText         String
+    rewrittenText        String
+    tone                 Tone?
+    length               Length?
+    preservedEntities    Boolean   @default(false)
+    preservedPunctuation Boolean   @default(false)
+    extraInstructions    String?
+    isPublic             Boolean   @default(false)
+    publicShareId        String?   @unique
+    slug                 String?   @unique
+    shareExpires         DateTime?
+    createdAt            DateTime  @default(now())
+
+    user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Generic definition entries (glossary, grammar notes) that can be shared
+model Definer {
+    id            String    @id @default(cuid())
+    term          String
+    definition    String
+    authorId      String?
+    isPublic      Boolean   @default(false)
+    publicShareId String?   @unique
+    slug          String?   @unique
+    shareExpires  DateTime?
+    createdAt     DateTime  @default(now())
+
+    author User? @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+// Spellcheck results and optional public sharing
+model Spellcheck {
+    id            String    @id @default(cuid())
+    userId        String?
+    originalText  String
+    correctedText String
+    issuesCount   Int       @default(0)
+    isPublic      Boolean   @default(false)
+    publicShareId String?   @unique
+    slug          String?   @unique
+    shareExpires  DateTime?
+    createdAt     DateTime  @default(now())
+
+    user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Tests / Quizzes for practice
+model Test {
+    id          String     @id @default(cuid())
+    slug        String     @unique
+    title       String
+    description String?
+    difficulty  Difficulty @default(BEGINNER)
+    createdAt   DateTime   @default(now())
+    quizzes     Quiz[]
+    authorId    String?
+    author      User?      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model Quiz {
+    id          String   @id @default(cuid())
+    testId      String
+    title       String
+    description String?
+    createdAt   DateTime @default(now())
+
+    test      Test          @relation(fields: [testId], references: [id], onDelete: Cascade)
+    questions Question[]
+    // attempts for this quiz (back relation)
+    attempts  QuizAttempt[]
+    authorId  String?
+    author    User?         @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+model Question {
+    id      String       @id @default(cuid())
+    quizId  String
+    type    QuestionType @default(FREEFORM)
+    prompt  String
+    // options for MCQ / structured answers stored as JSON
+    options Json?
+    // answer(s) stored as JSON to allow flexible checking
+    answers Json?
+    points  Int          @default(1)
+
+    quiz     Quiz              @relation(fields: [quizId], references: [id], onDelete: Cascade)
+    attempts QuestionAttempt[]
+}
+
+model QuizAttempt {
+    id            String    @id @default(cuid())
+    userId        String
+    quizId        String
+    score         Int
+    maxScore      Int
+    passed        Boolean
+    startedAt     DateTime  @default(now())
+    completedAt   DateTime?
+    // store per-question answers + metadata
+    results       Json?
+    // Sharing
+    isPublic      Boolean   @default(false)
+    publicShareId String?   @unique
+    shareExpires  DateTime?
+
+    user             User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+    quiz             Quiz              @relation(fields: [quizId], references: [id], onDelete: Cascade)
+    // per-question attempts
+    questionAttempts QuestionAttempt[]
+}
+
+model QuestionAttempt {
+    id           String  @id @default(cuid())
+    questionId   String
+    attemptId    String
+    // user's answer stored as JSON
+    answer       Json
+    correct      Boolean
+    pointsEarned Int
+
+    question    Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+    // relation to parent QuizAttempt
+    quizAttempt QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+}
+
+// Enums
+enum UserRole {
+    ADMIN
+    USER
+}
+
+enum Tone {
+    CASUAL
+    FORMAL
+    INFORMAL
+    CREATIVE
+}
+
+enum Length {
+    SHORT
+    MEDIUM
+    LONG
+    ORIGINAL
+}
+
+// Which tool generated the activity
+enum ActivityTool {
+    REPHRASER
+    DEFINER
+    SPELLCHECK
+    QUIZ
+    TEST
+    PRACTICE
+    OTHER
+}
+
+// Action or event performed
+enum ActivityAction {
+    CREATED
+    COMPLETED
+    UPDATED
+    DELETED
+    ATTEMPTED
+}
+
+enum Difficulty {
+    BEGINNER
+    INTERMEDIATE
+    ADVANCED
+}
+
+enum QuestionType {
+    MULTIPLE_CHOICE
+    FILL_BLANK
+    FREEFORM
+}
