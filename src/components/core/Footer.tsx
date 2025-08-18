@@ -80,7 +80,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <a
-                    href="mailto:legal@lexiapp.space"
+                    href="mailto:hey@lexiapp.space"
                     className="text-grey-40/50 hover:text-white"
                   >
                     Contact
