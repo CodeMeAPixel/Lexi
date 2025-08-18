@@ -8,22 +8,25 @@ datasource db {
 }
 
 model User {
-    id             String            @id @default(cuid())
+    id             String         @id @default(cuid())
     name           String?
-    username       String?           @unique
-    email          String?           @unique
+    username       String?        @unique
+    email          String?        @unique
     emailVerified  DateTime?
-    role           UserRole          @default(USER)
+    role           UserRole       @default(USER)
     image          String?
     bio            String?
     hashedPassword String?
-    createdAt      DateTime          @default(now())
+    createdAt      DateTime       @default(now())
     accounts       Account[]
     sessions       Session[]
-    rephrases      RephraseHistory[]
+    activities     UserActivity[]
+    rephrasers     Rephraser[]
+    definers       Definer[]
     quizAttempts   QuizAttempt[]
     testsCreated   Test[]
     quizzesCreated Quiz[]
+    Spellcheck     Spellcheck[]
 }
 
 model Account {
@@ -39,8 +42,7 @@ model Account {
     scope             String?
     id_token          String?
     session_state     String?
-
-    user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+    user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
     @@unique([provider, providerAccountId])
 }
@@ -62,20 +64,69 @@ model VerificationToken {
     @@unique([identifier, token])
 }
 
-// Store individual rephrase results for history / export
-model RephraseHistory {
-    id                   String   @id @default(cuid())
-    userId               String
-    originalText         String
-    rewrittenText        String
-    tone                 Tone
-    length               Length
-    preservedEntities    Boolean
-    preservedPunctuation Boolean
-    extraInstructions    String?
-    createdAt            DateTime @default(now())
+// Generic user activity log used by rephraser, quizzes, tests, etc.
+model UserActivity {
+    id        String         @id @default(cuid())
+    userId    String
+    tool      ActivityTool
+    action    ActivityAction
+    summary   String?
+    payload   Json?
+    relatedId String? // optional: reference to another model id (e.g., quizAttempt id)
+    createdAt DateTime       @default(now())
 
     user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Store rephraser results that can be shared publicly via slug or share id
+model Rephraser {
+    id                   String    @id @default(cuid())
+    userId               String?
+    originalText         String
+    rewrittenText        String
+    tone                 Tone?
+    length               Length?
+    preservedEntities    Boolean   @default(false)
+    preservedPunctuation Boolean   @default(false)
+    extraInstructions    String?
+    isPublic             Boolean   @default(false)
+    publicShareId        String?   @unique
+    slug                 String?   @unique
+    shareExpires         DateTime?
+    createdAt            DateTime  @default(now())
+
+    user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Generic definition entries (glossary, grammar notes) that can be shared
+model Definer {
+    id            String    @id @default(cuid())
+    term          String
+    definition    String
+    authorId      String?
+    isPublic      Boolean   @default(false)
+    publicShareId String?   @unique
+    slug          String?   @unique
+    shareExpires  DateTime?
+    createdAt     DateTime  @default(now())
+
+    author User? @relation(fields: [authorId], references: [id], onDelete: Cascade)
+}
+
+// Spellcheck results and optional public sharing
+model Spellcheck {
+    id            String    @id @default(cuid())
+    userId        String?
+    originalText  String
+    correctedText String
+    issuesCount   Int       @default(0)
+    isPublic      Boolean   @default(false)
+    publicShareId String?   @unique
+    slug          String?   @unique
+    shareExpires  DateTime?
+    createdAt     DateTime  @default(now())
+
+    user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // Tests / Quizzes for practice
@@ -175,6 +226,26 @@ enum Length {
     MEDIUM
     LONG
     ORIGINAL
+}
+
+// Which tool generated the activity
+enum ActivityTool {
+    REPHRASER
+    DEFINER
+    SPELLCHECK
+    QUIZ
+    TEST
+    PRACTICE
+    OTHER
+}
+
+// Action or event performed
+enum ActivityAction {
+    CREATED
+    COMPLETED
+    UPDATED
+    DELETED
+    ATTEMPTED
 }
 
 enum Difficulty {

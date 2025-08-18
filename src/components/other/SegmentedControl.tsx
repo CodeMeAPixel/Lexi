@@ -8,7 +8,11 @@ import {
   useCallback,
 } from "react";
 
-type Segment = { value: string; label: string; ref?: RefObject<HTMLElement> };
+type Segment = {
+  value: string;
+  label: string;
+  ref?: RefObject<HTMLDivElement | null>;
+};
 type Props = {
   name: string;
   segments: Segment[];
@@ -25,14 +29,14 @@ export default function SegmentedControl({
   controlRef,
 }: Props) {
   const [activeIndex, setActiveIndex] = useState(defaultIndex);
-  const containerRef = controlRef ?? useRef<HTMLDivElement>(null);
-  const highlightRef = useRef<HTMLDivElement>(null);
+  const containerRef = controlRef ?? useRef<HTMLDivElement | null>(null);
+  const highlightRef = useRef<HTMLDivElement | null>(null);
 
   // Ensure refs for each segment
-  const segmentRefs = useRef<RefObject<HTMLElement>[]>([]);
+  const segmentRefs = useRef<RefObject<HTMLDivElement | null>[]>([]);
   if (segmentRefs.current.length !== segments.length) {
     segmentRefs.current = segments.map(
-      (_, i) => segments[i].ref || createRef<HTMLElement>()
+      (_, i) => segments[i].ref || createRef<HTMLDivElement | null>(),
     );
   }
 
@@ -77,7 +81,11 @@ export default function SegmentedControl({
       }}
     >
       <div className="controls">
-        <div ref={highlightRef} className="controls-highlight" aria-hidden="true" />
+        <div
+          ref={highlightRef}
+          className="controls-highlight"
+          aria-hidden="true"
+        />
         {segments.map((item, i) => (
           <div
             key={item.value}
