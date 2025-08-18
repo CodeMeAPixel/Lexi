@@ -1,6 +1,6 @@
 # Lexi (Lexicon)
 
-![Lexicon nameplate](/nameplate.png)
+![Lexicon nameplate](./public//nameplate.png)
 
 Lexi (a.k.a. Lexicon) is an AI-powered writing assistant focused on rephrasing, definitions, and small practice tools. It uses Next.js (App Router), TailwindCSS, Prisma (Postgres), NextAuth for authentication, and OpenAI integrations for AI features.
 
