@@ -4,62 +4,6 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/hash";
 
-/**
- * Normalize a string into a bare hostname (lowercased).
- * Accepts inputs like:
- *   - "https://beta.lexiapp.space"
- *   - "beta.lexiapp.space"
- *   - "http://foo.com:3000"
- */
-function normalizeHost(input: string): string | null {
-  try {
-    return new URL(input).hostname.toLowerCase();
-  } catch {
-    return input
-      .replace(/^https?:\/\//, "")
-      .split(":")[0]
-      .toLowerCase();
-  }
-}
-
-/** Build the allow-list */
-const ALLOWED_AUTH_HOSTS = (() => {
-  const hosts = new Set<string>();
-
-  // Add from env (comma-separated)
-  const fromEnv = (process.env.ALLOWED_AUTH_DOMAINS || "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean)
-    .map(normalizeHost)
-    .filter(Boolean) as string[];
-  fromEnv.forEach((h) => hosts.add(h));
-
-  // Add default public app URL
-  if (process.env.NEXT_PUBLIC_APP_URL) {
-    const host = normalizeHost(process.env.NEXT_PUBLIC_APP_URL);
-    if (host) hosts.add(host);
-  }
-
-  return hosts;
-})();
-
-/** Check if a hostname is allowed (supports wildcards like *.lexiapp.space) */
-function isAllowedHost(hostname: string): boolean {
-  const host = hostname.toLowerCase();
-
-  if (ALLOWED_AUTH_HOSTS.has(host)) return true;
-
-  for (const allowed of ALLOWED_AUTH_HOSTS) {
-    if (allowed.startsWith("*.")) {
-      const suffix = allowed.slice(1); // ".lexiapp.space"
-      if (host.endsWith(suffix)) return true;
-    }
-  }
-
-  return false;
-}
-
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
@@ -128,13 +72,11 @@ export const authOptions: NextAuthOptions = {
       } as any;
     },
     async redirect({ url, baseUrl }) {
+      // Use NextAuth's default redirect logic
+      if (url.startsWith("/")) return new URL(url, baseUrl).toString();
       try {
-        if (url.startsWith("/")) {
-          return new URL(url, baseUrl).toString();
-        }
-
         const parsed = new URL(url);
-        if (isAllowedHost(parsed.hostname)) return parsed.toString();
+        if (parsed.origin === baseUrl) return url;
       } catch {
         // ignore and fall through
       }
