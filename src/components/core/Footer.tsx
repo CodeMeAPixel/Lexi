@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaGithub, FaTwitter } from "react-icons/fa";
 import { useSidebar } from "./SidebarContext";
+import StatusIndicator from "./StatusIndicator";
 
 const Footer = () => {
   const pathname = usePathname();
@@ -17,6 +18,11 @@ const Footer = () => {
   return (
     <footer className="w-screen -mb-10 footer">
       <div className="px-6 py-12 mx-auto max-w-7xl">
+        {/* System Status */}
+        <div className="flex justify-end mb-6">
+          <StatusIndicator />
+        </div>
+
         {/* Top row */}
         <div className="flex flex-row justify-between gap-6 md:flex-col">
           {/* Brand */}
