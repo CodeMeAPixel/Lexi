@@ -104,6 +104,27 @@ export default function SpellcheckPage() {
     fallbackCopy(url);
   }
 
+  function copyText(text: string) {
+    if (navigator.share) {
+      navigator.share({ text, title: "Corrected text" }).catch(() => {
+        fallbackCopy(text);
+      });
+      return;
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          toast.success("Copied corrected text");
+        })
+        .catch(() => {
+          fallbackCopy(text);
+        });
+      return;
+    }
+    fallbackCopy(text);
+  }
+
   function fallbackCopy(url: string) {
     const textarea = document.createElement("textarea");
     textarea.value = url;
