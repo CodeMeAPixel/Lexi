@@ -19,6 +19,7 @@ For more information, see:
 - Spellchecker API and results page updated to show counts and public sharing.
 - Middleware and Navbar now gate dashboard/tools access for unverified users; only Overview is accessible until email is verified.
 - NextAuth session callback now always includes emailVerified for reliable client checks.
+- Health check API endpoints for all tools: `/api/definer/health`, `/api/rephraser/health`, `/api/spellcheck/health`, `/api/tldr/health`.
 
 ### Changed
 
@@ -36,6 +37,7 @@ For more information, see:
 ### Removed
 
 - Broken and buggy multi domain support for auth redirects
+- Removed legacy health check logic from individual tool implementations (now unified under `/health` endpoints)
 
 # [v1.0.0-beta.3] - 2025-08-25
 
