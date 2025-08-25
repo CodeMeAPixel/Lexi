@@ -49,6 +49,22 @@ export async function POST(req: Request) {
         slug: slugToUse,
       },
     });
+    try {
+      if (userId) {
+        await prisma.userActivity.create({
+          data: {
+            userId,
+            tool: "SPELLCHECK",
+            action: "COMPLETED",
+            summary: correctedText.slice(0, 200),
+            payload: JSON.stringify({ issuesCount }) as any,
+            relatedId: created.id,
+          },
+        });
+      }
+    } catch (err) {
+      console.error("spellcheck.store activity save failed", err);
+    }
 
     return NextResponse.json({ ok: true, item: created });
   } catch (err) {

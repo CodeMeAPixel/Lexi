@@ -1,5 +1,12 @@
 import React from "react";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Cookies",
+  description: "Learn about our cookie policy and how we use cookies.",
+};
+
 export default function CookiesPage() {
   const updated = new Date().toISOString().slice(0, 10);
   return (

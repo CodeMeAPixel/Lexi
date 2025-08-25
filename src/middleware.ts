@@ -2,43 +2,58 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { getToken } from "next-auth/jwt";
 
-const PROTECTED_PATHS = ["/auth/verify", "/auth/reset", "/dashboard"];
+const PROTECTED_PATHS = [
+  "/auth/verify",
+  "/auth/reset",
+  "/dashboard",
+  "/tools",
+  "/admin",
+];
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
-  // Only run on protected paths
+  // Get token (if logged in)
+  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+
+  // If logged in and hitting any /auth page -> redirect to dashboard
+  if (token && pathname.startsWith("/auth")) {
+    const url = req.nextUrl.clone();
+    url.pathname = "/dashboard";
+    return NextResponse.redirect(url);
+  }
+
+  // Only enforce checks on protected paths
   if (!PROTECTED_PATHS.some((p) => pathname.startsWith(p))) {
     return NextResponse.next();
   }
 
-  const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
   if (token) {
-    // If the user is authenticated but is navigating to a dashboard subpage
-    // (not the root /dashboard), ensure their email is verified. If not,
-    // redirect them back to the main /dashboard page where the verification
-    // alert is shown.
+    // If user goes deeper into /dashboard/* and is unverified, force them back to /dashboard
     if (
       pathname.startsWith("/dashboard") &&
       pathname !== "/dashboard" &&
       pathname !== "/dashboard/"
     ) {
       try {
-        // Call server API /api/me to get the latest user record (includes emailVerified).
-        const meUrl = new URL("/api/me", req.url).toString();
+        const meUrl = req.nextUrl.clone();
+        meUrl.pathname = "/api/me";
+
         const res = await fetch(meUrl, {
           headers: { cookie: req.headers.get("cookie") || "" },
         });
+
         if (res.ok) {
           const body = await res.json();
           const emailVerified = !!body?.user?.emailVerified;
           if (!emailVerified) {
-            const dashboardUrl = new URL("/dashboard", req.url);
+            const dashboardUrl = req.nextUrl.clone();
+            dashboardUrl.pathname = "/dashboard";
+            dashboardUrl.search = ""; // clear query params if any
             return NextResponse.redirect(dashboardUrl);
           }
         }
       } catch (err) {
-        // If checking fails, allow navigation so we don't block users unnecessarily
         console.error("middleware /api/me fetch failed", err);
       }
     }
@@ -46,20 +61,22 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  // Redirect to signin with callback
-  const signInUrl = new URL("/auth/signin", req.url);
+  // Not logged in → redirect to signin
+  const signInUrl = req.nextUrl.clone();
+  signInUrl.pathname = "/auth/signin";
   signInUrl.searchParams.set(
     "callbackUrl",
     req.nextUrl.pathname + req.nextUrl.search,
   );
+
   return NextResponse.redirect(signInUrl);
 }
 
 export const config = {
   matcher: [
-    "/auth/verify/:path*",
-    "/auth/reset/:path*",
+    "/auth/:path*",
     "/dashboard/:path*",
+    "/tools/:path*",
     "/admin/:path*",
   ],
 };

@@ -40,16 +40,7 @@ export async function POST(req: Request) {
         )) as unknown as { user?: { id?: string } } | null;
         if (!session?.user?.id) return;
         const userId = session.user.id as string;
-        // Store payload as JSON string to avoid DB coercion to "[object Object]"
-        await prisma.userActivity.create({
-          data: {
-            userId,
-            tool: "DEFINER",
-            action: "COMPLETED",
-            summary: finalText.slice(0, 200),
-            payload: JSON.stringify({ term, definition: finalText }) as any,
-          },
-        });
+        // DB updates (result row + activity) are handled by the corresponding /store route.
       } catch (err) {
         console.error("Failed to save definer activity", err);
       }

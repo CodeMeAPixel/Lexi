@@ -1,5 +1,12 @@
 import React from "react";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Privacy Policy",
+  description: "Learn about our privacy policy and how we protect your data.",
+};
+
 export default function PrivacyPage() {
   const updated = new Date().toISOString().slice(0, 10);
   return (

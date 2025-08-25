@@ -40,6 +40,22 @@ export async function POST(req: Request) {
         slug: slugToUse,
       },
     });
+    try {
+      if (userId) {
+        await prisma.userActivity.create({
+          data: {
+            userId,
+            tool: "DEFINER",
+            action: "COMPLETED",
+            summary: definition.slice(0, 200),
+            payload: JSON.stringify({ term }) as any,
+            relatedId: created.id,
+          },
+        });
+      }
+    } catch (err) {
+      console.error("definer.store activity save failed", err);
+    }
 
     return NextResponse.json({ ok: true, item: created });
   } catch (err) {

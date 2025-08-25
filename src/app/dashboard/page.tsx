@@ -282,6 +282,7 @@ function ActivityCard({ item }: { item: any }) {
   let toolLabel = "Activity";
   if (tool === "REPHRASER") ((Icon = FileText), (toolLabel = "Rephraser"));
   else if (tool === "DEFINER") ((Icon = Sparkles), (toolLabel = "Definer"));
+  else if (tool === "TLDR") ((Icon = FileText), (toolLabel = "TL;DR"));
   else if (tool === "TEST") ((Icon = BookOpen), (toolLabel = "Test"));
   else if (tool === "QUIZ") ((Icon = Sparkles), (toolLabel = "Quiz"));
   else if (tool === "PRACTICE") ((Icon = Sparkles), (toolLabel = "Practice"));

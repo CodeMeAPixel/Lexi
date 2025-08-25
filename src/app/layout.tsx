@@ -9,6 +9,7 @@ import { SidebarProvider } from "@/components/core/SidebarContext";
 import SidebarLayoutWrapper from "@/components/core/SidebarLayoutWrapper";
 import GlobalLoader from "@/components/core/GlobalLoader";
 import { Suspense } from "react";
+import Script from "next/script";
 
 const poppins = Poppins({
   weight: ["400", "700"],
@@ -92,6 +93,12 @@ export default function RootLayout({
             </SidebarProvider>
           </SessionProviderClient>
         </div>
+        <Script
+          async
+          src="https://ackee.bytebrush.dev/tracker.js"
+          data-ackee-server="https://ackee.bytebrush.dev"
+          data-ackee-domain-id="c1605cd4-b354-4d06-a6e4-b56c5d1cb72d"
+        />
       </body>
     </html>
   );

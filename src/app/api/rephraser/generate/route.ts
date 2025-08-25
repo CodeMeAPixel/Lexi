@@ -64,24 +64,7 @@ export async function POST(req: Request) {
         const toneEnum = tone ? tone.toString().toUpperCase() : undefined;
         const lengthEnum = length ? length.toString().toUpperCase() : undefined;
 
-        // Ensure payload is stored as JSON (avoid accidental toString -> "[object Object]")
-        await prisma.userActivity.create({
-          data: {
-            userId,
-            tool: "REPHRASER",
-            action: "COMPLETED",
-            summary: finalText.slice(0, 200),
-            payload: JSON.stringify({
-              original: original ?? prompt,
-              rewritten: finalText,
-              tone: toneEnum,
-              length: lengthEnum,
-              preserveEntities: !!preserveEntities,
-              preservePunctuation: !!preservePunctuation,
-              extraInstructions: extraInstructions ?? undefined,
-            }) as any,
-          },
-        });
+        // DB updates (result row + activity) are handled by the corresponding /store route.
       } catch (err) {
         console.error("Failed to save rephrase history", err);
       }

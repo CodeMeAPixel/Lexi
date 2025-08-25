@@ -1,5 +1,12 @@
 import React from "react";
 
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Terms of Service",
+  description: "Learn about our terms of service and user agreements.",
+};
+
 export default function TermsPage() {
   const updated = new Date().toISOString().slice(0, 10);
 

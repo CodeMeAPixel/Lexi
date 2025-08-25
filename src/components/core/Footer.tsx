@@ -10,8 +10,9 @@ const Footer = () => {
   const pathname = usePathname();
   const isDashboard = pathname?.startsWith("/dashboard");
   const isAdmin = pathname?.startsWith("/admin");
+  const isTool = pathname?.startsWith("/tools");
   const { sidebarOpen } = useSidebar();
-  if (isDashboard || isAdmin || sidebarOpen) return null;
+  if (isDashboard || isAdmin || isTool || sidebarOpen) return null;
 
   return (
     <footer className="w-screen -mb-10 footer">
