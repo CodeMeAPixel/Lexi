@@ -11,6 +11,18 @@ For more information, see:
 
 ---
 
+# [v1.0.0-beta.4] - 2025-08-25
+
+### Added
+
+### Changed
+
+### Fixed
+
+### Removed
+
+- Broken and buggy multi domain support for auth redirects
+
 # [v1.0.0-beta.3] - 2025-08-25
 
 ### Added

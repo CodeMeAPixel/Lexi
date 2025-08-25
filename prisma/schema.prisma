@@ -121,6 +121,7 @@ model Spellcheck {
     originalText  String
     correctedText String
     issuesCount   Int       @default(0)
+    wordsFixed    Int       @default(0)
     isPublic      Boolean   @default(false)
     publicShareId String?   @unique
     slug          String?   @unique

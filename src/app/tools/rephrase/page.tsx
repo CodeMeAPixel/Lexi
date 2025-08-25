@@ -13,6 +13,61 @@ type LengthType = "short" | "medium" | "long" | "original";
 type ToneType = "Casual" | "Formal" | "Informal" | "Creative";
 
 export default function Rephraser() {
+  function copyShareUrl(url: string) {
+    if (navigator.share) {
+      navigator.share({ url, title: "Share this page" }).catch(() => {
+        fallbackCopy(url);
+      });
+      return;
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(url)
+        .then(() => {
+          toast.success("Link copied to clipboard!");
+        })
+        .catch(() => {
+          fallbackCopy(url);
+        });
+      return;
+    }
+    fallbackCopy(url);
+  }
+
+  function fallbackCopy(url: string) {
+    const textarea = document.createElement("textarea");
+    textarea.value = url;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand("copy");
+      toast.success("Link copied to clipboard!");
+    } catch {
+      toast.error("Unable to copy. Please copy manually: " + url);
+    }
+    document.body.removeChild(textarea);
+  }
+
+  function copyText(text: string) {
+    if (navigator.share) {
+      navigator.share({ text, title: "Rephrased text" }).catch(() => {
+        fallbackCopy(text);
+      });
+      return;
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          toast.success("Copied result 👏");
+        })
+        .catch(() => {
+          fallbackCopy(text);
+        });
+      return;
+    }
+    fallbackCopy(text);
+  }
   const [length, setLength] = useState<LengthType>("short");
   const [type, setType] = useState<ToneType>("Casual");
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -215,11 +270,7 @@ export default function Rephraser() {
                     <span className="badge">{resultLength}</span>
                   )}
                   <button
-                    onClick={async () => {
-                      if (!resultText) return;
-                      await navigator.clipboard.writeText(resultText);
-                      toast.success("Copied result 👏");
-                    }}
+                    onClick={() => copyText(resultText)}
                     className="flex items-center gap-1 p-2 text-sm rounded-md btn-ghost hover:bg-white/10"
                     title="Copy"
                   >
@@ -274,13 +325,7 @@ export default function Rephraser() {
                             `/results/${created.item.slug}`,
                             location.origin,
                           ).toString();
-                          try {
-                            await navigator.clipboard.writeText(url);
-                            toast.success("Saved & copied public URL");
-                          } catch {
-                            window.open(url, "_blank");
-                            toast.success("Saved — opened public result");
-                          }
+                          copyShareUrl(url);
                         } else {
                           toast.success("Saved to your account");
                         }
