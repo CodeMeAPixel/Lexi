@@ -27,6 +27,7 @@ model User {
     testsCreated   Test[]
     quizzesCreated Quiz[]
     Spellcheck     Spellcheck[]
+    tldrs          Tldr[]
 }
 
 model Account {
@@ -120,6 +121,21 @@ model Spellcheck {
     originalText  String
     correctedText String
     issuesCount   Int       @default(0)
+    isPublic      Boolean   @default(false)
+    publicShareId String?   @unique
+    slug          String?   @unique
+    shareExpires  DateTime?
+    createdAt     DateTime  @default(now())
+
+    user User? @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// TL;DR summaries saved by users
+model Tldr {
+    id            String    @id @default(cuid())
+    userId        String?
+    messages      Json?
+    summary       String
     isPublic      Boolean   @default(false)
     publicShareId String?   @unique
     slug          String?   @unique
@@ -233,6 +249,7 @@ enum ActivityTool {
     REPHRASER
     DEFINER
     SPELLCHECK
+    TLDR
     QUIZ
     TEST
     PRACTICE

@@ -36,6 +36,9 @@ export default async function ResultsPage({
     case "definer":
       content = <DefinerView item={item} user={user} />;
       break;
+    case "tldr":
+      content = <TldrView item={item} user={user} />;
+      break;
     case "quizAttempt":
       content = <QuizAttemptView item={item} user={user} />;
       break;
@@ -169,6 +172,45 @@ function DefinerView({ item }: any) {
       <div className="text-sm prose text-white/70">
         <p>{item.definition}</p>
       </div>
+    </div>
+  );
+}
+
+function TldrView({ item, user }: any) {
+  // item.messages is stored as JSON — render as a conversation history if present
+  const messages: Array<{ role?: string; content?: string }> =
+    item.messages || [];
+
+  return (
+    <div className="p-6 text-left rounded glass-panel">
+      <h1 className="mb-6 text-2xl font-extrabold sm:text-4xl">
+        TL;DR Summary
+      </h1>
+
+      <div className="mb-4 text-sm text-white/70">
+        <div className="mb-2 font-medium">Summary</div>
+        <div className="whitespace-pre-wrap text-white/90">{item.summary}</div>
+      </div>
+
+      {messages.length > 0 && (
+        <div className="mt-4">
+          <h3 className="mb-2 text-sm font-medium text-white/80">
+            Source Messages
+          </h3>
+          <div className="space-y-3">
+            {messages.map((m, i) => (
+              <div key={i} className="p-3 rounded bg-white/3">
+                <div className="text-xs text-white/60">
+                  {(m.role || "user").toUpperCase()}
+                </div>
+                <div className="mt-1 text-sm whitespace-pre-wrap">
+                  {m.content}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

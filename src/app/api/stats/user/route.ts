@@ -21,6 +21,7 @@ export async function GET() {
       rephrasersCount,
       definersCount,
       activitiesCount,
+      tldrCount,
       quizAttemptsCount,
       testsCreatedCount,
       publicRephrasersCount,
@@ -29,6 +30,8 @@ export async function GET() {
       prisma.rephraser.count({ where: { userId } }),
       prisma.definer.count({ where: { authorId: userId } }),
       prisma.userActivity.count({ where: { userId } }),
+      // user's TLDR summaries
+      prisma.tldr.count({ where: { userId } }).catch(() => 0),
       prisma.quizAttempt.count({ where: { userId } }),
       prisma.test.count({ where: { authorId: userId } }),
       prisma.rephraser.count({ where: { isPublic: true } }),
@@ -36,6 +39,8 @@ export async function GET() {
     ]);
 
     const totalPublicResults = publicRephrasersCount + publicDefinersCount;
+    const publicTldrsCount = await prisma.tldr.count().catch(() => 0);
+    const totalPublicResultsWithTldr = totalPublicResults + publicTldrsCount;
 
     // Recent activity (latest 8)
     const recentActivities = await prisma.userActivity.findMany({
@@ -57,10 +62,11 @@ export async function GET() {
       stats: {
         rephrasersCount,
         definersCount,
+        tldrCount,
         activitiesCount,
         quizAttemptsCount,
         testsCreatedCount,
-        totalPublicResults,
+        totalPublicResults: totalPublicResultsWithTldr,
       },
       recentActivities,
     });

@@ -11,6 +11,60 @@ For more information, see:
 
 ---
 
+# [v1.0.0-beta.3] - 2025-08-25
+
+### Added
+
+- Admin Panel: dashboard and API for user management, activity review, and moderation.
+- New admin pages: user management, activities, audit logs, dashboard overview, moderation tools.
+- API routes for admin actions and profile management: avatar removal, data download/view, account deletion.
+- Settings page: tabs for profile/security, improved avatar uploader, username field, security section, and data viewer with sensitive info obfuscation.
+- Tabs component: security tabs styled red for visual distinction.
+- JSON viewer in settings: syntax highlighting and obfuscation of sensitive fields.
+- UI consistency: custom button classes, toast system, and color tokens.
+- Summarizer (TLDR) tool: AI-powered summary generation, dashboard UI, API endpoints, and Lucide icon integration.
+- Moved all tools (Rephraser, Definer, Spellcheck, Summarizer) to unified `/tools` route for easier access and navigation.
+- Dashboard Activity History page: tool icons/badges, expandable summary, skeleton loader, search/filter input, copy button, improved mobile layout.
+- Custom toast system (`CustomToast` + `ToasterClient`): all feedback, confirmation, and error toasts now use the custom component, supporting icons, actions, and accessibility.
+- Admin UI: confirmation/denial toasts via `CustomToast`, button color fixes.
+- Lucide icons for tool avatars in dashboard and activity history.
+- Accessibility improvements: aria-labels, large touch targets, screen reader support for dashboard actions.
+- Design tokens for glass panels, buttons, and color classes for consistent styling.
+- Improved logging to help debug missing relatedId cases in tool usage lookups.
+- Metadata for all available pages.
+
+### Changed
+
+- Refactored dashboard history page for better UX and code consistency.
+- All toast feedback now routed through `CustomToast` for unified styling and control.
+- Improved mobile-first design for dashboard history and admin pages.
+- Button color styling in toasts now respected via inline styles.
+- Activity history: paginated, fetches `/api/activity/list`, shows activity items with summary, date, and view/copy actions.
+- Tools navigation: all tools now accessible via `/tools` route, with unified UI and improved discoverability.
+- Tool Usage Lookup
+  - When `relatedId` is missing, now falls back to looking up the tool usage by user instead of incorrectly checking the payload.
+- Settings page: security tab now shows/hides user data with sensitive info obfuscated by default, toggle to show all.
+- Tabs component updated: any tab with "security" in its name is styled red.
+- Improved JSON viewer in settings: syntax highlighting and obfuscation of sensitive fields.
+- "Remove image" button now calls avatar removal API directly.
+- UI consistency fixes: button classes, toast system, color tokens.
+
+### Fixed
+
+- Runtime errors: invalid toast usage, missing imports, syntax issues.
+- Button color styling in toasts.
+- Mobile layout clutter in dashboard history page.
+- Ensured all feedback uses `CustomToast`.
+- Tool Usage Resolution
+  - Correctly resolves `shareId` and `slug` for tool results when a `relatedId` exists by looking up the corresponding tool usage.
+  - Ensures results no longer default to `null` when valid values are present.
+  - Removes incorrect fallback to `payload` for resolving identifiers, since this data will never exist there.
+  - Ensure `relatedId` is always set on tool usage.
+- Updated `middleware` and `authOptions` redirects and domain usage, redirects should now work regardless of the production domain that is used.
+- Fixed formatting and build errors in settings page, tabs component, and admin pages.
+
+---
+
 ## [v1.0.0-beta.2] - 2025-08-17
 
 ### Added

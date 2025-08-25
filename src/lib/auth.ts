@@ -4,43 +4,67 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
 import { verifyPassword } from "@/lib/hash";
 
-// Allow-list of production hostnames (comma-separated in env) that may be
-// used as valid callback/redirect targets. If the env var is not set we
-// include the current NEXT_PUBLIC_APP_URL hostname (if available) so the
-// running host is always allowed.
-const rawAllowed = process.env.ALLOWED_AUTH_DOMAINS || "";
-const allowedFromEnv = rawAllowed
-  .split(",")
-  .map((s) => s.trim())
-  .filter(Boolean)
-  .map((u) => {
-    try {
-      // Accept values like https://beta.lexiapp.space or just beta.lexiapp.space
-      return new URL(u).hostname;
-    } catch (err) {
-      return u.replace(/^https?:\/\//, "");
+/**
+ * Normalize a string into a bare hostname (lowercased).
+ * Accepts inputs like:
+ *   - "https://beta.lexiapp.space"
+ *   - "beta.lexiapp.space"
+ *   - "http://foo.com:3000"
+ */
+function normalizeHost(input: string): string | null {
+  try {
+    return new URL(input).hostname.toLowerCase();
+  } catch {
+    return input
+      .replace(/^https?:\/\//, "")
+      .split(":")[0]
+      .toLowerCase();
+  }
+}
+
+/** Build the allow-list */
+const ALLOWED_AUTH_HOSTS = (() => {
+  const hosts = new Set<string>();
+
+  // Add from env (comma-separated)
+  const fromEnv = (process.env.ALLOWED_AUTH_DOMAINS || "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter(Boolean)
+    .map(normalizeHost)
+    .filter(Boolean) as string[];
+  fromEnv.forEach((h) => hosts.add(h));
+
+  // Add default public app URL
+  if (process.env.NEXT_PUBLIC_APP_URL) {
+    const host = normalizeHost(process.env.NEXT_PUBLIC_APP_URL);
+    if (host) hosts.add(host);
+  }
+
+  return hosts;
+})();
+
+/** Check if a hostname is allowed (supports wildcards like *.lexiapp.space) */
+function isAllowedHost(hostname: string): boolean {
+  const host = hostname.toLowerCase();
+
+  if (ALLOWED_AUTH_HOSTS.has(host)) return true;
+
+  for (const allowed of ALLOWED_AUTH_HOSTS) {
+    if (allowed.startsWith("*.")) {
+      const suffix = allowed.slice(1); // ".lexiapp.space"
+      if (host.endsWith(suffix)) return true;
     }
-  });
+  }
 
-const defaultPublic = process.env.NEXT_PUBLIC_APP_URL
-  ? (() => {
-      try {
-        return new URL(process.env.NEXT_PUBLIC_APP_URL).hostname;
-      } catch {
-        return process.env.NEXT_PUBLIC_APP_URL;
-      }
-    })()
-  : undefined;
-
-const ALLOWED_AUTH_HOSTS = new Set<string>([
-  ...allowedFromEnv,
-  ...(defaultPublic ? [defaultPublic] : []),
-]);
+  return false;
+}
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   providers: [
     CredentialsProvider({
+      id: "credentials",
       name: "Credentials",
       credentials: {
         email: { label: "Email", type: "email" },
@@ -65,16 +89,32 @@ export const authOptions: NextAuthOptions = {
           name: user.name ?? null,
           email: user.email,
           image: user.image,
+          role: user.role,
         };
       },
     }),
   ],
-  session: {
-    strategy: "jwt",
-  },
+  session: { strategy: "jwt" },
+  debug: !!process.env.NEXTAUTH_DEBUG,
   callbacks: {
     async jwt({ token, user }) {
-      if (user) (token as any).id = (user as any).id;
+      if (user) {
+        (token as any).id = (user as any).id;
+        if ((user as any).role) (token as any).role = (user as any).role;
+      }
+
+      if (!(token as any).role && (token as any).id) {
+        try {
+          const u = await prisma.user.findUnique({
+            where: { id: (token as any).id },
+            select: { role: true },
+          });
+          if (u?.role) (token as any).role = u.role;
+        } catch {
+          // ignore db errors
+        }
+      }
+
       return token;
     },
     async session({ session, token }) {
@@ -83,23 +123,20 @@ export const authOptions: NextAuthOptions = {
         user: {
           ...session.user,
           id: (token as any).id,
+          role: (token as any).role ?? (session.user as any)?.role ?? "USER",
         },
       } as any;
     },
-    // Ensure redirect targets are allowed. NextAuth calls this with a `url`
-    // which may be absolute (after OAuth) or relative. We allow relative
-    // URLs (internal navigation) and absolute URLs that resolve to an
-    // allowed hostname from the ALLOWED_AUTH_DOMAINS list. Otherwise we
-    // fall back to the baseUrl which is provided by NextAuth and is safe.
     async redirect({ url, baseUrl }) {
       try {
-        // Relative url -> safe
-        if (url.startsWith("/")) return new URL(url, baseUrl).toString();
+        if (url.startsWith("/")) {
+          return new URL(url, baseUrl).toString();
+        }
 
         const parsed = new URL(url);
-        if (ALLOWED_AUTH_HOSTS.has(parsed.hostname)) return parsed.toString();
-      } catch (err) {
-        // ignore and fall back to baseUrl
+        if (isAllowedHost(parsed.hostname)) return parsed.toString();
+      } catch {
+        // ignore and fall through
       }
       return baseUrl;
     },

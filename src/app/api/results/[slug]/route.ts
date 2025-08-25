@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getServerSession } from "next-auth/next";
+import type { NextAuthOptions } from "next-auth";
+import { authOptions } from "@/lib/auth";
 
 export async function GET(
   _req: Request,
@@ -7,6 +10,12 @@ export async function GET(
 ) {
   try {
     const { slug } = await params;
+    // identify requester (may be undefined)
+    const session = await getServerSession(
+      authOptions as unknown as NextAuthOptions,
+    );
+    const user = session?.user as any | undefined;
+    const userId = user?.id as string | undefined;
 
     // Try to find by slug on Rephraser or Definer (include small user info)
     const r = await prisma.rephraser.findFirst({
@@ -15,7 +24,7 @@ export async function GET(
         user: { select: { id: true, name: true, username: true, image: true } },
       },
     });
-    if (r)
+    if (r && (r.isPublic || (userId && r.userId === userId)))
       return NextResponse.json({
         type: "rephraser",
         item: r,
@@ -30,7 +39,7 @@ export async function GET(
         },
       },
     });
-    if (d)
+    if (d && (d.isPublic || (userId && d.authorId === userId)))
       return NextResponse.json({
         type: "definer",
         item: d,
@@ -95,6 +104,46 @@ export async function GET(
         item: dd,
         user: dd.author ?? null,
       });
+
+    // Tldr by slug
+    try {
+      const tl = await prisma.tldr.findFirst({
+        where: { slug },
+        include: {
+          user: {
+            select: { id: true, name: true, username: true, image: true },
+          },
+        },
+      });
+      if (tl && (tl.isPublic || (userId && tl.userId === userId)))
+        return NextResponse.json({
+          type: "tldr",
+          item: tl,
+          user: tl.user ?? null,
+        });
+    } catch (_e) {
+      // ignore if tldr table missing
+    }
+
+    // Tldr by publicShareId
+    try {
+      const tl2 = await prisma.tldr.findFirst({
+        where: { publicShareId: slug },
+        include: {
+          user: {
+            select: { id: true, name: true, username: true, image: true },
+          },
+        },
+      });
+      if (tl2)
+        return NextResponse.json({
+          type: "tldr",
+          item: tl2,
+          user: tl2.user ?? null,
+        });
+    } catch (_e) {
+      // ignore if tldr table missing
+    }
 
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   } catch (err) {

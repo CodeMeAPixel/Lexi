@@ -193,6 +193,11 @@ function LexiconStats() {
           value={totals.totalSpellchecks}
           color="purple"
         />
+        <StatCard
+          label="Summaries (TL;DR)"
+          value={totals.totalTldrs}
+          color="teal"
+        />
         <StatCard label="Tests" value={totals.totalTests} color="pink" />
         <StatCard label="Quizzes" value={totals.totalQuizzes} color="blue" />
         <StatCard

@@ -44,30 +44,7 @@ export async function POST(req: Request) {
       text.split(/\s+/).length - correctedText.split(/\s+/).length,
     );
 
-    // Save activity if authenticated
-    try {
-      const session = await getServerSession(authOptions as NextAuthOptions);
-      if (
-        session &&
-        typeof (session.user as { id?: unknown }).id === "string"
-      ) {
-        await prisma.userActivity.create({
-          data: {
-            userId: (session.user as { id: string }).id,
-            tool: "SPELLCHECK",
-            action: "COMPLETED",
-            summary: correctedText.slice(0, 200),
-            payload: JSON.stringify({
-              original: text,
-              corrected: correctedText,
-              issuesCount,
-            }) as any,
-          },
-        });
-      }
-    } catch (err) {
-      console.error("Failed to save spellcheck activity", err);
-    }
+    // DB updates (result row + activity) are handled by the corresponding /store route.
 
     return NextResponse.json({
       ok: true,

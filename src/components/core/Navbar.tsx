@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
@@ -8,6 +8,7 @@ import { useSidebar } from "./SidebarContext";
 import {
   FaGithub,
   FaTimes,
+  FaChevronDown,
   FaHome,
   FaSyncAlt,
   FaInfoCircle,
@@ -18,11 +19,53 @@ import {
   FaCog,
   FaQuestionCircle,
   FaUpload,
+  FaDiscord,
+  FaHistory,
+  FaUserShield,
 } from "react-icons/fa";
 import Link from "next/link";
 import { signOut } from "next-auth/react";
-import { FileText, Sparkles, SpellCheck } from "lucide-react";
+import {
+  AtomIcon,
+  FileText,
+  LogsIcon,
+  Sparkles,
+  SpeechIcon,
+  SpellCheck,
+} from "lucide-react";
 import { HiSparkles } from "react-icons/hi2";
+
+function SectionGroup({
+  title,
+  children,
+  defaultOpen = false,
+  className = "",
+}: {
+  title: string;
+  children: React.ReactNode;
+  defaultOpen?: boolean;
+  className?: string;
+}) {
+  const [open, setOpen] = React.useState(Boolean(defaultOpen));
+
+  return (
+    <div className={className}>
+      <button
+        type="button"
+        onClick={() => setOpen((s) => !s)}
+        className="flex items-center justify-between w-full px-3 py-1 text-xs font-bold tracking-wide text-left uppercase bg-transparent border-0 outline-none appearance-none text-neutral-400 hover:bg-transparent focus:bg-transparent active:bg-transparent"
+        style={{ backgroundColor: "transparent" }}
+        aria-expanded={open}
+      >
+        <span>{title}</span>
+        <FaChevronDown
+          className={`ml-2 transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open && <div className="flex flex-col gap-2 mt-2">{children}</div>}
+    </div>
+  );
+}
 
 function Navbar() {
   const {
@@ -68,7 +111,7 @@ function Navbar() {
 
       {/* Sidebar overlay for all screen sizes */}
       {open && (
-        <div className="fixed top-16 left-0 h-[calc(100vh-4.5rem)] mt-4 -z-10">
+        <div className="fixed top-16 left-0 h-[calc(100vh-4.5rem)] mt-4 -z-10 overflow-auto">
           {/* backdrop */}
           <button
             aria-hidden={true}
@@ -109,43 +152,141 @@ function Navbar() {
               </button>
             </div>
 
-            {/* Main site links */}
-            <nav className="flex flex-col gap-2 mt-6">
-              <span className="px-3 py-1 text-xs font-bold tracking-wide text-left uppercase text-neutral-400">
-                Main Links
-              </span>
-              <Link
-                href="/"
-                onClick={() => setOpen(false)}
-                className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
-              >
-                <FaHome size={16} />
-                <span>Home</span>
-              </Link>
-              <Link
-                href="/about"
-                onClick={() => setOpen(false)}
-                className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
-              >
-                <FaInfoCircle size={16} />
-                <span>About</span>
-              </Link>
-              <Link
-                href="/changelog"
-                onClick={() => setOpen(false)}
-                className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
-              >
-                <FaUpload size={16} />
-                <span>Changes</span>
-              </Link>
-            </nav>
+            {/* Sections: show Dashboard & Tools first for authenticated users */}
+            {/* Collapsible behavior added but styling preserved */}
+            {session?.user && (
+              <nav className="flex flex-col gap-2 mt-6">
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="px-3 py-1 text-xs font-bold tracking-wide text-left uppercase text-neutral-400"
+                  style={{ display: "none" }}
+                >
+                  {/* invisible placeholder to preserve spacing/styling */}
+                </button>
+              </nav>
+            )}
+
+            {session?.user ? (
+              <SectionGroup title="Main Links" defaultOpen={false}>
+                <Link
+                  href="/"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
+                >
+                  <FaHome size={16} />
+                  <span>Home</span>
+                </Link>
+                <Link
+                  href="/about"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
+                >
+                  <FaInfoCircle size={16} />
+                  <span>About</span>
+                </Link>
+                <Link
+                  href="/changelog"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
+                >
+                  <FaUpload size={16} />
+                  <span>Changes</span>
+                </Link>
+                <Link
+                  href="https://discord.gg/Vv2bdC44Ge"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
+                >
+                  <FaDiscord size={16} />
+                  <span>Discord</span>
+                </Link>
+              </SectionGroup>
+            ) : (
+              <nav className="flex flex-col gap-2 mt-6">
+                <span className="px-3 py-1 text-xs font-bold tracking-wide text-left uppercase text-neutral-400">
+                  Main Links
+                </span>
+                <Link
+                  href="/"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
+                >
+                  <FaHome size={16} />
+                  <span>Home</span>
+                </Link>
+                <Link
+                  href="/about"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
+                >
+                  <FaInfoCircle size={16} />
+                  <span>About</span>
+                </Link>
+                <Link
+                  href="/changelog"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
+                >
+                  <FaUpload size={16} />
+                  <span>Changes</span>
+                </Link>
+                <Link
+                  href="https://discord.gg/Vv2bdC44Ge"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
+                >
+                  <FaDiscord size={16} />
+                  <span>Discord</span>
+                </Link>
+              </nav>
+            )}
+
+            {/* Admin links for authenticated users */}
+            {session?.user &&
+              (session.user as { role?: string }).role === "ADMIN" && (
+                <SectionGroup
+                  title="Admin Panel"
+                  defaultOpen={false}
+                  className="mt-8"
+                >
+                  <Link
+                    href="/admin"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
+                  >
+                    <FaInfoCircle size={16} />
+                    <span>Overview</span>
+                    <span className="text-xs text-green-500">(NEW)</span>
+                  </Link>
+                  <Link
+                    href="/admin/activities"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
+                  >
+                    <LogsIcon size={16} />
+                    <span>Audit Logs</span>
+                    <span className="text-xs text-green-500">(NEW)</span>
+                  </Link>
+                  <Link
+                    href="/admin/users"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
+                  >
+                    <FaUserShield size={16} />
+                    <span>User Manager</span>
+                    <span className="text-xs text-green-500">(NEW)</span>
+                  </Link>
+                </SectionGroup>
+              )}
 
             {/* Dashboard links for authenticated users */}
             {session?.user && (
-              <nav className="flex flex-col gap-2 mt-8">
-                <span className="px-3 py-1 text-xs font-bold tracking-wide text-left uppercase text-neutral-400">
-                  Dashboard
-                </span>
+              <SectionGroup
+                title="Dashboard"
+                defaultOpen={true}
+                className="mt-8"
+              >
                 <Link
                   href="/dashboard"
                   onClick={() => setOpen(false)}
@@ -155,7 +296,22 @@ function Navbar() {
                   <span>Overview</span>
                 </Link>
                 <Link
-                  href="/dashboard/rephrase"
+                  href="/dashboard/history"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
+                >
+                  <FaHistory size={16} />
+                  <span>History</span>
+                  <span className="text-xs text-green-500">(NEW)</span>
+                </Link>
+              </SectionGroup>
+            )}
+
+            {/* Tool links for authenticated users */}
+            {session?.user && (
+              <SectionGroup title="Tools" defaultOpen={true} className="mt-8">
+                <Link
+                  href="/tools/rephrase"
                   onClick={() => setOpen(false)}
                   className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
                 >
@@ -163,7 +319,7 @@ function Navbar() {
                   <span>Rephraser</span>
                 </Link>
                 <Link
-                  href="/dashboard/spellcheck"
+                  href="/tools/spellcheck"
                   onClick={() => setOpen(false)}
                   className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
                 >
@@ -171,14 +327,23 @@ function Navbar() {
                   <span>Spellcheck</span>
                 </Link>
                 <Link
-                  href="/dashboard/definer"
+                  href="/tools/tldr"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
+                >
+                  <SpeechIcon size={16} />
+                  <span>Summarizer</span>
+                  <span className="text-xs text-green-500">(NEW)</span>
+                </Link>
+                <Link
+                  href="/tools/definer"
                   onClick={() => setOpen(false)}
                   className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
                 >
                   <Sparkles size={16} />
                   <span>Definer</span>
                 </Link>
-              </nav>
+              </SectionGroup>
             )}
 
             {/* footer: sign out for authenticated, social for unauthenticated */}

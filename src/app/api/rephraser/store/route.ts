@@ -76,6 +76,27 @@ export async function POST(req: Request) {
       },
     });
 
+    // Create a UserActivity row referencing the created result
+    try {
+      if (userId) {
+        await prisma.userActivity.create({
+          data: {
+            userId,
+            tool: "REPHRASER",
+            action: "COMPLETED",
+            summary: rewrittenText.slice(0, 200),
+            payload: JSON.stringify({
+              tone: mapTone(tone),
+              length: mapLength(length),
+            }) as any,
+            relatedId: created.id,
+          },
+        });
+      }
+    } catch (err) {
+      console.error("rephraser.store activity save failed", err);
+    }
+
     return NextResponse.json({ ok: true, item: created });
   } catch (err) {
     console.error("rephraser.store", err);
