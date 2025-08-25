@@ -32,6 +32,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           name: user.name ?? null,
           email: user.email,
+          emailVerified: user.emailVerified,
           image: user.image,
           role: user.role,
         };
@@ -62,12 +63,26 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
+      // Fetch emailVerified from DB if not present in token
+      let emailVerified = (token as any).emailVerified;
+      if (!("emailVerified" in token) && (token as any).id) {
+        try {
+          const u = await prisma.user.findUnique({
+            where: { id: (token as any).id },
+            select: { emailVerified: true },
+          });
+          emailVerified = u?.emailVerified ?? null;
+        } catch {
+          emailVerified = null;
+        }
+      }
       return {
         ...session,
         user: {
           ...session.user,
           id: (token as any).id,
           role: (token as any).role ?? (session.user as any)?.role ?? "USER",
+          emailVerified,
         },
       } as any;
     },

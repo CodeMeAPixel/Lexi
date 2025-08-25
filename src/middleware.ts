@@ -16,7 +16,11 @@ export async function middleware(req: NextRequest) {
   // Get token (if logged in)
   const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
 
-  // If logged in and hitting any /auth page -> redirect to dashboard
+  // If logged in and hitting /auth/verify, allow access
+  if (token && pathname.startsWith("/auth/verify")) {
+    return NextResponse.next();
+  }
+  // If logged in and hitting any other /auth page -> redirect to dashboard
   if (token && pathname.startsWith("/auth")) {
     const url = req.nextUrl.clone();
     url.pathname = "/dashboard";
@@ -29,12 +33,13 @@ export async function middleware(req: NextRequest) {
   }
 
   if (token) {
-    // If user goes deeper into /dashboard/* and is unverified, force them back to /dashboard
-    if (
+    // If user goes deeper into /dashboard/* or /tools/* and is unverified, force them back to /dashboard
+    const isDashboardSubpage =
       pathname.startsWith("/dashboard") &&
       pathname !== "/dashboard" &&
-      pathname !== "/dashboard/"
-    ) {
+      pathname !== "/dashboard/";
+    const isToolPage = pathname.startsWith("/tools");
+    if (isDashboardSubpage || isToolPage) {
       try {
         const meUrl = req.nextUrl.clone();
         meUrl.pathname = "/api/me";
