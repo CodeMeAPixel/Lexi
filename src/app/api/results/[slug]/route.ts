@@ -127,7 +127,7 @@ export async function GET(
       });
 
     try {
-      const ss = await prisma.spellchecker.findFirst({
+      const ss = await prisma.spellcheck.findFirst({
         where: { publicShareId: slug },
         include: {
           user: {
