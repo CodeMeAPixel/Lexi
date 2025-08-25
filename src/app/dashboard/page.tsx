@@ -98,7 +98,7 @@ export default function DashboardPage() {
             <Mail className="flex-none w-5 h-5 text-[#FBBF24]" />
             <span>
               <strong className="text-[#FBBF24]">Email not verified.</strong>{" "}
-              Please verify your email to unlock all dashboard features.
+              please verify your email to unlock all features!
             </span>
           </div>
           <button

@@ -32,18 +32,28 @@ export async function POST(req: Request) {
     const publicShareId = `s_${shortId()}`;
     const slugToUse = slug || `s-${shortId()}`;
 
-    // naive issues count
-    const issuesCount = Math.max(
-      0,
-      originalText.split(/\s+/).length - correctedText.split(/\s+/).length,
-    );
+    // naive issues count and words fixed
+    const origWords = originalText.split(/\s+/);
+    const corrWords = correctedText.split(/\s+/);
+    let issuesCount = 0;
+    let wordsFixed = 0;
+    // Compare word by word for changes
+    for (let i = 0; i < Math.min(origWords.length, corrWords.length); i++) {
+      if (origWords[i] !== corrWords[i]) {
+        issuesCount++;
+        wordsFixed++;
+      }
+    }
+    // Add any extra words removed/added
+    issuesCount += Math.abs(origWords.length - corrWords.length);
 
     const created = await prisma.spellcheck.create({
       data: {
-        userId: userId ?? undefined,
+        user: userId ? { connect: { id: userId } } : undefined,
         originalText,
         correctedText,
         issuesCount,
+        wordsFixed,
         isPublic: !!isPublic,
         publicShareId,
         slug: slugToUse,
@@ -57,7 +67,7 @@ export async function POST(req: Request) {
             tool: "SPELLCHECK",
             action: "COMPLETED",
             summary: correctedText.slice(0, 200),
-            payload: JSON.stringify({ issuesCount }) as any,
+            payload: JSON.stringify({ issuesCount, wordsFixed }) as any,
             relatedId: created.id,
           },
         });

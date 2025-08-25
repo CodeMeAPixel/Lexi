@@ -11,6 +11,34 @@ For more information, see:
 
 ---
 
+# [v1.0.0-beta.4] - 2025-08-25
+
+### Added
+
+- Spellchecker now saves and displays both issues detected and words fixed for each result.
+- Spellchecker API and results page updated to show counts and public sharing.
+- Middleware and Navbar now gate dashboard/tools access for unverified users; only Overview is accessible until email is verified.
+- NextAuth session callback now always includes emailVerified for reliable client checks.
+- Health check API endpoints for all tools: `/api/definer/health`, `/api/rephraser/health`, `/api/spellcheck/health`, `/api/tldr/health`.
+
+### Changed
+
+- Navbar and middleware logic now use emailVerified as a date (not boolean) for verification checks.
+- Improved spellchecker result logic and user activity payload to include wordsFixed and issuesCount.
+- Settings page and API routes now properly handle user data directory in production.
+
+### Fixed
+
+- Fixed Prisma errors for spellchecker: correct model name, user relation, and added missing wordsFixed field.
+- Fixed CORS error explanation for external analytics (Ackee): clarified that CORS must be set server-side, not in Next.js config.
+- Fixed email verification logic to match NextAuth's use of a date for emailVerified.
+- Fixed middleware to allow /auth/verify for logged-in users.
+
+### Removed
+
+- Broken and buggy multi domain support for auth redirects
+- Removed legacy health check logic from individual tool implementations (now unified under `/health` endpoints)
+
 # [v1.0.0-beta.3] - 2025-08-25
 
 ### Added

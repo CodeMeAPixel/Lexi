@@ -17,7 +17,7 @@ export async function GET(
     const user = session?.user as any | undefined;
     const userId = user?.id as string | undefined;
 
-    // Try to find by slug on Rephraser or Definer (include small user info)
+    // Try to find by slug on Rephraser, Definer, or Spellchecker (include small user info)
     const r = await prisma.rephraser.findFirst({
       where: { slug },
       include: {
@@ -45,6 +45,27 @@ export async function GET(
         item: d,
         user: d.author ?? null,
       });
+
+    // Spellchecker by slug
+    try {
+      const s = await prisma.spellcheck.findFirst({
+        where: { slug },
+        include: {
+          user: {
+            select: { id: true, name: true, username: true, image: true },
+          },
+        },
+      });
+      if (s && (s.isPublic || (userId && s.userId === userId))) {
+        return NextResponse.json({
+          type: "spellchecker",
+          item: s,
+          user: s.user ?? null,
+        });
+      }
+    } catch (_e) {
+      // ignore if spellchecker table missing
+    }
 
     // Try QuizAttempt via publicShareId (include user + quiz/test)
     const qa = await prisma.quizAttempt.findFirst({
@@ -76,7 +97,7 @@ export async function GET(
         user: t.author ?? null,
       });
 
-    // fallback: try as share id for rephraser/definer
+    // fallback: try as share id for rephraser/definer/spellchecker
     const rr = await prisma.rephraser.findFirst({
       where: { publicShareId: slug },
       include: {
@@ -104,6 +125,26 @@ export async function GET(
         item: dd,
         user: dd.author ?? null,
       });
+
+    try {
+      const ss = await prisma.spellcheck.findFirst({
+        where: { publicShareId: slug },
+        include: {
+          user: {
+            select: { id: true, name: true, username: true, image: true },
+          },
+        },
+      });
+      if (ss) {
+        return NextResponse.json({
+          type: "spellchecker",
+          item: ss,
+          user: ss.user ?? null,
+        });
+      }
+    } catch (_e) {
+      // ignore if spellchecker table missing
+    }
 
     // Tldr by slug
     try {

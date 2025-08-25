@@ -28,6 +28,7 @@ import { signOut } from "next-auth/react";
 import {
   AtomIcon,
   FileText,
+  GitGraph,
   LogsIcon,
   Sparkles,
   SpeechIcon,
@@ -77,9 +78,8 @@ function Navbar() {
   const isDashboard = pathname?.startsWith("/dashboard");
   const isAdmin = pathname?.startsWith("/admin");
 
-  const { data: session } = useSession();
-
-  // Navbar renders on all pages; dashboard/admin layout should reuse the shared sidebar
+  const { data: session, status } = useSession();
+  const isVerified = (session?.user as any)?.emailVerified;
 
   return (
     <nav className="z-50 flex w-full mb-20">
@@ -201,6 +201,14 @@ function Navbar() {
                   <FaDiscord size={16} />
                   <span>Discord</span>
                 </Link>
+                <Link
+                  href="https://status.lexiapp.space"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
+                >
+                  <GitGraph size={16} />
+                  <span>Status</span>
+                </Link>
               </SectionGroup>
             ) : (
               <nav className="flex flex-col gap-2 mt-6">
@@ -238,6 +246,14 @@ function Navbar() {
                 >
                   <FaDiscord size={16} />
                   <span>Discord</span>
+                </Link>
+                <Link
+                  href="https://status.lexiapp.space"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
+                >
+                  <GitGraph size={16} />
+                  <span>Status</span>
                 </Link>
               </nav>
             )}
@@ -280,7 +296,7 @@ function Navbar() {
                 </SectionGroup>
               )}
 
-            {/* Dashboard links for authenticated users */}
+            {/* Dashboard links for authenticated users, only show Overview if not verified */}
             {session?.user && (
               <SectionGroup
                 title="Dashboard"
@@ -295,20 +311,22 @@ function Navbar() {
                   <FaUserCircle size={16} />
                   <span>Overview</span>
                 </Link>
-                <Link
-                  href="/dashboard/history"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
-                >
-                  <FaHistory size={16} />
-                  <span>History</span>
-                  <span className="text-xs text-green-500">(NEW)</span>
-                </Link>
+                {isVerified && (
+                  <Link
+                    href="/dashboard/history"
+                    onClick={() => setOpen(false)}
+                    className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
+                  >
+                    <FaHistory size={16} />
+                    <span>History</span>
+                    <span className="text-xs text-green-500">(NEW)</span>
+                  </Link>
+                )}
               </SectionGroup>
             )}
 
-            {/* Tool links for authenticated users */}
-            {session?.user && (
+            {/* Tool links for authenticated users, only show if verified */}
+            {session?.user && isVerified && (
               <SectionGroup title="Tools" defaultOpen={true} className="mt-8">
                 <Link
                   href="/tools/rephrase"

@@ -45,6 +45,9 @@ export default async function ResultsPage({
     case "test":
       content = <TestView item={item} user={user} />;
       break;
+    case "spellchecker":
+      content = <SpellcheckerView item={item} user={user} />;
+      break;
     default:
       content = (
         <div className="p-6 rounded glass-panel">
@@ -136,6 +139,41 @@ export default async function ResultsPage({
         </div>
       </section>
     </main>
+  );
+}
+
+function SpellcheckerView({ item, user }: any) {
+  // Assume item.issuesDetected, item.wordsFixed, item.originalText, item.correctedText
+  return (
+    <div className="p-6 text-left rounded glass-panel">
+      <h1 className="mb-6 text-2xl font-extrabold sm:text-4xl">
+        Spellcheck Results
+      </h1>
+      <div className="grid grid-cols-1 gap-4">
+        <div>
+          <h3 className="text-sm font-medium text-white/80">Original</h3>
+          <div className="mt-2 text-sm whitespace-pre-wrap text-white/70">
+            {item.originalText}
+          </div>
+        </div>
+        <div>
+          <h3 className="text-sm font-medium text-white/80">Corrected</h3>
+          <div className="mt-2 text-sm whitespace-pre-wrap text-white/90">
+            {item.correctedText}
+          </div>
+        </div>
+      </div>
+      <div className="mt-6 text-sm text-white/80">
+        <div>
+          <span className="font-medium">Issues Detected:</span>{" "}
+          {item.issuesCount ?? "N/A"}
+        </div>
+        <div className="mt-1">
+          <span className="font-medium">Words Fixed:</span>{" "}
+          {item.wordsFixed ?? "N/A"}
+        </div>
+      </div>
+    </div>
   );
 }
 

@@ -78,8 +78,7 @@ export default function DefinerPage() {
           location.origin,
         ).toString();
         try {
-          await navigator.clipboard.writeText(url);
-          toast.success("Saved & copied public URL");
+          copyShareUrl(url);
         } catch {
           // fallback: open in new tab
           window.open(url, "_blank");
@@ -96,6 +95,40 @@ export default function DefinerPage() {
     }
   }
 
+  function copyShareUrl(url: string) {
+    if (navigator.share) {
+      navigator.share({ url, title: "Share this page" }).catch(() => {
+        fallbackCopy(url);
+      });
+      return;
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(url)
+        .then(() => {
+          alert("Link copied to clipboard!");
+        })
+        .catch(() => {
+          fallbackCopy(url);
+        });
+      return;
+    }
+    fallbackCopy(url);
+  }
+
+  function fallbackCopy(url: string) {
+    const textarea = document.createElement("textarea");
+    textarea.value = url;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand("copy");
+      alert("Link copied to clipboard!");
+    } catch {
+      alert("Unable to copy. Please copy manually: " + url);
+    }
+    document.body.removeChild(textarea);
+  }
   return (
     <main className="flex flex-col w-full">
       <div className="w-full grid-cols-1 gap-6 mt-2 lg:grid-cols-2">

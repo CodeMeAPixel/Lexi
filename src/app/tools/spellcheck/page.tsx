@@ -70,15 +70,10 @@ export default function SpellcheckPage() {
           `/results/${body.item.slug}`,
           location.origin,
         ).toString();
-        try {
-          await navigator.clipboard.writeText(url);
-          toast.success("Saved & copied public URL");
-        } catch {
-          window.open(url, "_blank");
-          toast.success("Saved — opened public result");
-        }
+        copyShareUrl(url);
+        toast.success("Saved and copied public URL");
       } else {
-        toast.success("Saved");
+        toast.success("Saved successfully");
       }
     } catch (err) {
       console.error(err);
@@ -86,6 +81,62 @@ export default function SpellcheckPage() {
     } finally {
       setSaving(false);
     }
+  }
+
+  function copyShareUrl(url: string) {
+    if (navigator.share) {
+      navigator.share({ url, title: "Share this page" }).catch(() => {
+        fallbackCopy(url);
+      });
+      return;
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(url)
+        .then(() => {
+          toast.success("Link copied to clipboard!");
+        })
+        .catch(() => {
+          fallbackCopy(url);
+        });
+      return;
+    }
+    fallbackCopy(url);
+  }
+
+  function copyText(text: string) {
+    if (navigator.share) {
+      navigator.share({ text, title: "Corrected text" }).catch(() => {
+        fallbackCopy(text);
+      });
+      return;
+    }
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(text)
+        .then(() => {
+          toast.success("Copied corrected text");
+        })
+        .catch(() => {
+          fallbackCopy(text);
+        });
+      return;
+    }
+    fallbackCopy(text);
+  }
+
+  function fallbackCopy(url: string) {
+    const textarea = document.createElement("textarea");
+    textarea.value = url;
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+      document.execCommand("copy");
+      toast.success("Link copied to clipboard!");
+    } catch {
+      toast.error("Unable to copy. Please copy manually: " + url);
+    }
+    document.body.removeChild(textarea);
   }
 
   return (
@@ -151,11 +202,7 @@ export default function SpellcheckPage() {
 
                 <div className="flex items-center gap-2">
                   <button
-                    onClick={async () => {
-                      if (!corrected) return;
-                      await navigator.clipboard.writeText(corrected);
-                      toast.success("Copied corrected text");
-                    }}
+                    onClick={() => copyText(corrected)}
                     className="flex items-center gap-1 p-2 text-sm rounded-md btn-ghost hover:bg-white/10"
                     title="Copy"
                   >
