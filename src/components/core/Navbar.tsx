@@ -28,6 +28,7 @@ import { signOut } from "next-auth/react";
 import {
   AtomIcon,
   FileText,
+  GitGraph,
   LogsIcon,
   Sparkles,
   SpeechIcon,
@@ -200,6 +201,14 @@ function Navbar() {
                   <FaDiscord size={16} />
                   <span>Discord</span>
                 </Link>
+                <Link
+                  href="https://status.lexiapp.space"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
+                >
+                  <GitGraph size={16} />
+                  <span>Status</span>
+                </Link>
               </SectionGroup>
             ) : (
               <nav className="flex flex-col gap-2 mt-6">
@@ -237,6 +246,14 @@ function Navbar() {
                 >
                   <FaDiscord size={16} />
                   <span>Discord</span>
+                </Link>
+                <Link
+                  href="https://status.lexiapp.space"
+                  onClick={() => setOpen(false)}
+                  className="flex items-center justify-start w-full gap-3 px-3 py-2 rounded hover:bg-white/5"
+                >
+                  <GitGraph size={16} />
+                  <span>Status</span>
                 </Link>
               </nav>
             )}
