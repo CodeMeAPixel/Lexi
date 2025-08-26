@@ -20,12 +20,18 @@ For more information, see:
 - Middleware and Navbar now gate dashboard/tools access for unverified users; only Overview is accessible until email is verified.
 - NextAuth session callback now always includes emailVerified for reliable client checks.
 - Health check API endpoints for all tools: `/api/definer/health`, `/api/rephraser/health`, `/api/spellcheck/health`, `/api/tldr/health`.
+- Internal API routes for Ackee analytics: `/api/ackee/tracker.js` proxies the tracker script, `/api/ackee/collect` proxies tracking requests.
 
 ### Changed
 
 - Navbar and middleware logic now use emailVerified as a date (not boolean) for verification checks.
 - Improved spellchecker result logic and user activity payload to include wordsFixed and issuesCount.
 - Settings page and API routes now properly handle user data directory in production.
+- StatusIndicator now uses the internal `/api/status` route and displays a user-friendly status label as a link.
+- Footer component updated: system status indicator moved beside social icons for improved UX.
+- All auth forms (sign-in, sign-up, reset, forgot) now open the keyboard immediately on mobile by removing `readOnly` and `onFocus` from input fields.
+- After login and email verification, the app now calls `router.refresh()` to ensure session and navbar state update instantly (fixes mobile redirect and UI issues).
+- Ackee analytics script in layout now uses internal API endpoints for improved privacy and CORS handling.
 
 ### Fixed
 
@@ -33,6 +39,8 @@ For more information, see:
 - Fixed CORS error explanation for external analytics (Ackee): clarified that CORS must be set server-side, not in Next.js config.
 - Fixed email verification logic to match NextAuth's use of a date for emailVerified.
 - Fixed middleware to allow /auth/verify for logged-in users.
+- Mobile keyboard now reliably opens for all input fields in authentication forms.
+- Auth redirect and navbar state now update immediately after login and email verification, especially on mobile devices.
 
 ### Removed
 
