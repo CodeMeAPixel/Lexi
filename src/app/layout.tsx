@@ -96,7 +96,7 @@ export default function RootLayout({
         <Script
           async
           src="/api/ackee/tracker.js"
-          data-ackee-server="/api/ackee"
+          data-ackee-server="https://ackee.bytebrush.dev"
           data-ackee-domain-id="c1605cd4-b354-4d06-a6e4-b56c5d1cb72d"
         />
       </body>
