@@ -26,6 +26,7 @@ export default function SignInPage() {
       if (res?.ok) {
         toast.success("Signed in");
         router.push("/dashboard");
+        router.refresh();
       } else {
         // next-auth returns an error string in res.error when redirect=false
         toast.error(res?.error || "Sign in failed");
@@ -87,8 +88,6 @@ export default function SignInPage() {
               placeholder="Enter your email"
               onChange={(e) => setEmail(e.target.value)}
               autoComplete="off"
-              readOnly
-              onFocus={(e) => (e.currentTarget.readOnly = false)}
             />
           </div>
 
@@ -105,8 +104,6 @@ export default function SignInPage() {
               placeholder="Enter your password"
               onChange={(e) => setPassword(e.target.value)}
               autoComplete="off"
-              readOnly
-              onFocus={(e) => (e.currentTarget.readOnly = false)}
             />
           </div>
 

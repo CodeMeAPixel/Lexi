@@ -86,8 +86,6 @@ export default function ForgotPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               autoComplete="off"
-              readOnly
-              onFocus={(e) => (e.currentTarget.readOnly = false)}
             />
           </div>
 

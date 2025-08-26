@@ -56,6 +56,7 @@ export default function VerifyPage() {
       // Optionally redirect to dashboard after a short delay
       setTimeout(() => {
         router.push("/dashboard");
+        router.refresh();
       }, 1400);
     } catch (err) {
       console.error(err);

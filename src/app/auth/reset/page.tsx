@@ -108,8 +108,6 @@ export default function ResetPage() {
                 onChange={(e) => setCurrentPassword(e.target.value)}
                 placeholder="Enter your current password"
                 autoComplete="current-password"
-                readOnly
-                onFocus={(e) => (e.currentTarget.readOnly = false)}
               />
             </div>
           )}
@@ -127,8 +125,6 @@ export default function ResetPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="At least 8 characters"
               autoComplete="new-password"
-              readOnly
-              onFocus={(e) => (e.currentTarget.readOnly = false)}
             />
           </div>
 
@@ -143,8 +139,6 @@ export default function ResetPage() {
               onChange={(e) => setConfirm(e.target.value)}
               placeholder="Confirm new password"
               autoComplete="new-password"
-              readOnly
-              onFocus={(e) => (e.currentTarget.readOnly = false)}
             />
           </div>
 

@@ -125,8 +125,6 @@ export default function SignUpPage() {
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
               autoComplete="off"
-              readOnly
-              onFocus={(e) => (e.currentTarget.readOnly = false)}
             />
           </div>
 
@@ -143,8 +141,6 @@ export default function SignUpPage() {
               onChange={(e) => setPassword(e.target.value)}
               placeholder="At least 8 characters"
               autoComplete="new-password"
-              readOnly
-              onFocus={(e) => (e.currentTarget.readOnly = false)}
             />
           </div>
 

@@ -18,11 +18,6 @@ const Footer = () => {
   return (
     <footer className="w-screen -mb-10 footer">
       <div className="px-6 py-12 mx-auto max-w-7xl">
-        {/* System Status */}
-        <div className="flex justify-end mb-6">
-          <StatusIndicator />
-        </div>
-
         {/* Top row */}
         <div className="flex flex-row justify-between gap-6 md:flex-col">
           {/* Brand */}
@@ -145,7 +140,8 @@ const Footer = () => {
         {/* Bottom row */}
         <div className="flex flex-row items-center justify-between gap-6 text-sm text-gray-500 md:flex-row">
           <p>© {new Date().getFullYear()} ByteBrush Studios.</p>
-          <div className="flex gap-5">
+          <div className="flex items-center gap-5">
+            <StatusIndicator />
             <a
               target="_blank"
               href="https://github.com/CodeMeAPixel/Lexi"

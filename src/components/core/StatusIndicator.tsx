@@ -24,11 +24,7 @@ export default function StatusIndicator() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch("https://status.lexiapp.space/api/monitor", {
-      headers: STATUS_API_TOKEN
-        ? { Authorization: `Bearer ${STATUS_API_TOKEN}` }
-        : {},
-    })
+    fetch("/api/status")
       .then((res) => res.json())
       .then((data) => {
         setMonitors(Array.isArray(data) ? data : []);
@@ -50,17 +46,27 @@ export default function StatusIndicator() {
     ? STATUS_COLORS[main.status] || STATUS_COLORS.NONE
     : STATUS_COLORS.NONE;
 
+  // Map status to user-friendly label
+  const statusLabel = main
+    ? main.status === "ACTIVE" || main.status === "UP"
+      ? "ONLINE"
+      : main.status === "DEGRADED"
+        ? "DEGRADED"
+        : main.status === "DOWN"
+          ? "OFFLINE"
+          : main.status
+    : "Unknown";
+
   return (
     <span className="flex items-center gap-2 text-xs">
       <span className={`inline-block w-2 h-2 rounded-full ${color}`} />
-      <span>{main ? main.status : "Unknown"}</span>
       <a
         href="https://status.lexiapp.space"
         target="_blank"
         rel="noopener noreferrer"
-        className="ml-2 underline text-grey-40/60 hover:text-white"
+        className="underline text-grey-40/60 hover:text-white"
       >
-        System Status
+        {statusLabel}
       </a>
     </span>
   );
