@@ -2,7 +2,7 @@
   "name": "@codemeapixel/lexi",
   "description": "Your personal English coach.",
   "license": "AGPL-3.0-only",
-  "version": "1.0.0-beta.2",
+  "version": "1.0.0",
   "scripts": {
     "dev": "next dev --turbopack",
     "db:push": "prisma db push",
