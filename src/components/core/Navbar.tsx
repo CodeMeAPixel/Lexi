@@ -141,7 +141,7 @@ function Navbar() {
         icon: <FaUpload size={15} />,
       },
       {
-        href: "https://discord.gg/Vv2bdC44Ge",
+        href: "https://discord.gg/nodebyte",
         label: "Discord",
         icon: <FaDiscord size={15} />,
         external: true,
