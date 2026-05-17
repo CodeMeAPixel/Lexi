@@ -1,0 +1,10 @@
+version: 2
+updates:
+  - package-ecosystem: "bun" # See documentation for possible values
+    directory: "/" # Location of package manifests
+    schedule:
+      interval: "daily"
+    target-branch: deps
+    assignees:
+      - CodeMeAPixel
+    open-pull-requests-limit: 25
