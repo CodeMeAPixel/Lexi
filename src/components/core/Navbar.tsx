@@ -167,13 +167,18 @@ function Navbar() {
         label: "Summarizer",
         icon: <SpeechIcon size={15} />,
       },
-      { href: "/tools/definer", label: "Definer", icon: <Sparkles size={15} /> },
+      {
+        href: "/tools/definer",
+        label: "Definer",
+        icon: <Sparkles size={15} />,
+      },
     ],
     [],
   );
 
   const linkClass = (href: string) => {
-    const isActive = href !== "/" ? pathname?.startsWith(href) : pathname === "/";
+    const isActive =
+      href !== "/" ? pathname?.startsWith(href) : pathname === "/";
     if (isActive) {
       return "flex items-center justify-start gap-3 rounded-md border border-white/15 bg-white/10 px-3 py-2 text-sm font-medium text-white";
     }
@@ -267,7 +272,11 @@ function Navbar() {
               />
             ) : (
               <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-white/10">
-                <img src="/logo.png" alt="Lexicon" className="h-8 w-8 rounded-full" />
+                <img
+                  src="/logo.png"
+                  alt="Lexicon"
+                  className="h-8 w-8 rounded-full"
+                />
               </div>
             )}
             <span className="max-w-[10.5rem] truncate text-sm font-semibold text-white">
@@ -373,7 +382,7 @@ function Navbar() {
             <Link
               href="/auth"
               onClick={() => setOpen(false)}
-              className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-white/20 bg-white px-3 py-2 text-sm font-semibold text-black transition hover:bg-white/90"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-white/20 bg-white/[0.04] px-3 py-2 text-sm font-semibold text-black transition hover:bg-white/[0.06] hover:text-white"
             >
               <HiSparkles size={14} />
               <span>Get Started</span>

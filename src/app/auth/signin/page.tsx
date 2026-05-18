@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { type FormEvent, useState } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -12,10 +12,33 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const router = useRouter();
 
-  async function submit(e: React.FormEvent) {
+  function getSignInErrorMessage(error?: string | null) {
+    if (!error) return "Sign in failed. Please check your email and password.";
+    const normalized = error.toLowerCase();
+    if (
+      normalized.includes("credential") ||
+      normalized.includes("credentialssignin")
+    ) {
+      return "Invalid email or password. Please try again.";
+    }
+    if (normalized.includes("accessdenied")) {
+      return "Access denied. Please contact support if you believe this is a mistake.";
+    }
+    if (normalized.includes("verification")) {
+      return "Your sign-in could not be completed. Please verify your email or try again.";
+    }
+    if (normalized.includes("oauth")) {
+      return "Unable to sign in with this provider right now. Please try again later.";
+    }
+    return error;
+  }
+
+  async function submit(e: FormEvent) {
     e.preventDefault();
+    setErrorMessage(null);
     setLoading(true);
     try {
       const res = await signIn("credentials", {
@@ -28,12 +51,15 @@ export default function SignInPage() {
         router.push("/dashboard");
         router.refresh();
       } else {
-        // next-auth returns an error string in res.error when redirect=false
-        toast.error(res?.error || "Sign in failed");
+        const message = getSignInErrorMessage(res?.error);
+        setErrorMessage(message);
+        toast.error(message);
       }
     } catch (err) {
       console.error(err);
-      toast.error("Sign in failed");
+      const message = "Sign in failed. Please check your email and password.";
+      setErrorMessage(message);
+      toast.error(message);
     } finally {
       setLoading(false);
     }
@@ -112,6 +138,12 @@ export default function SignInPage() {
               Forgot password?
             </Link>
           </div>
+
+          {errorMessage ? (
+            <div className="px-3 py-2 text-sm text-red-200 bg-red-900 rounded-md">
+              {errorMessage}
+            </div>
+          ) : null}
 
           <button
             type="submit"
