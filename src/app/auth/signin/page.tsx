@@ -5,17 +5,30 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Link from "next/link";
-import { FaSignInAlt } from "react-icons/fa";
+import { FaSignInAlt, FaExclamationCircle } from "react-icons/fa";
 import Image from "next/image";
+
+const ERROR_MESSAGES: Record<string, string> = {
+  CredentialsSignin: "Invalid email or password. Please try again.",
+  Credentials: "Invalid email or password. Please try again.",
+  Default: "Something went wrong. Please try again later.",
+};
+
+function getErrorMessage(error: string | null | undefined): string {
+  if (!error) return ERROR_MESSAGES.Default;
+  return ERROR_MESSAGES[error] || ERROR_MESSAGES.Default;
+}
 
 export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    setError(null);
     setLoading(true);
     try {
       const res = await signIn("credentials", {
@@ -24,16 +37,18 @@ export default function SignInPage() {
         password,
       });
       if (res?.ok) {
-        toast.success("Signed in");
+        toast.success("Signed in successfully!");
         router.push("/dashboard");
         router.refresh();
       } else {
-        // next-auth returns an error string in res.error when redirect=false
-        toast.error(res?.error || "Sign in failed");
+        const msg = getErrorMessage(res?.error);
+        setError(msg);
+        toast.error(msg);
       }
-    } catch (err) {
-      console.error(err);
-      toast.error("Sign in failed");
+    } catch {
+      const msg = ERROR_MESSAGES.Default;
+      setError(msg);
+      toast.error(msg);
     } finally {
       setLoading(false);
     }
@@ -112,6 +127,13 @@ export default function SignInPage() {
               Forgot password?
             </Link>
           </div>
+
+          {error && (
+            <div className="flex items-center gap-2 p-3 text-sm rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+              <FaExclamationCircle />
+              <span>{error}</span>
+            </div>
+          )}
 
           <button
             type="submit"

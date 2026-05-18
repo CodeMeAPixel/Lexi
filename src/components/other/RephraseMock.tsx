@@ -89,7 +89,7 @@ export default function RephraseMock() {
           <div className="w-2 h-2 rounded-full bg-rose-400/90" />
         </div>
         <div className="text-[11px] font-medium uppercase tracking-[0.12em] text-white/45">
-          Live Preview
+          Preview
         </div>
       </div>
 

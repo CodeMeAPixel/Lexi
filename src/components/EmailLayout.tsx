@@ -50,7 +50,7 @@ export default function EmailLayout({ children, preview }: Props) {
             }}
           >
             <img
-              src="https://beta.lexiapp.space/nameplate.png"
+              src="https://lexiapp.space/nameplate.png"
               alt="Lexi"
               width={138}
               height={36}
@@ -71,7 +71,9 @@ export default function EmailLayout({ children, preview }: Props) {
             }}
           >
             <div>NodeByte LTD</div>
-            <div>© {new Date().getFullYear()} NodeByte LTD. All rights reserved.</div>
+            <div>
+              © {new Date().getFullYear()} NodeByte LTD. All rights reserved.
+            </div>
           </footer>
         </div>
       </body>
